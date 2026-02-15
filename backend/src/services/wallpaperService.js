@@ -1,6 +1,7 @@
 import { fetchPexelsTrending, fetchPexelsSearch } from './pexelsService.js';
 import { fetchUnsplashTrending, fetchUnsplashSearch } from './unsplashService.js';
 import { fetchWallhavenTrending, fetchWallhavenSearch } from './wallhavenService.js';
+import { fetchRedditTrending, fetchRedditSearch } from './redditService.js';
 import { getFallbackTrending, getFallbackSearch, getFallbackByCategory } from './fallbackService.js';
 import cache from '../cache/memoryCache.js';
 
@@ -25,7 +26,7 @@ export function getCategories() {
 }
 
 // Backend base URL for image proxy
-const BACKEND_URL = process.env.BACKEND_URL || 'https://relieved-pigeon-virex-9ada7548.koyeb.app';
+const BACKEND_URL = process.env.BACKEND_URL || 'https://backend-tau-orcin-14.vercel.app';
 
 // Proxy image URL through our backend to bypass geo-blocks in Russia
 function proxyUrl(originalUrl) {
@@ -54,11 +55,12 @@ function normalizeWallpaper(raw, source) {
 }
 
 // Merge and shuffle results from multiple sources
-function mergeResults(pexels, unsplash, wallhaven) {
+function mergeResults(pexels, unsplash, wallhaven, reddit) {
   const all = [
     ...pexels.map(w => normalizeWallpaper(w, 'pexels')),
     ...unsplash.map(w => normalizeWallpaper(w, 'unsplash')),
-    ...wallhaven.map(w => normalizeWallpaper(w, 'wallhaven'))
+    ...wallhaven.map(w => normalizeWallpaper(w, 'wallhaven')),
+    ...reddit.map(w => normalizeWallpaper(w, 'reddit'))
   ];
   
   // Shuffle to mix sources
@@ -66,24 +68,28 @@ function mergeResults(pexels, unsplash, wallhaven) {
 }
 
 // Fetch with fallback
-async function fetchWithFallback(pexelsFn, unsplashFn, wallhavenFn, ...args) {
+async function fetchWithFallback(pexelsFn, unsplashFn, wallhavenFn, redditFn, ...args) {
   const results = await Promise.allSettled([
     pexelsFn(...args),
     unsplashFn(...args),
-    wallhavenFn(...args)
+    wallhavenFn(...args),
+    redditFn(...args)
   ]);
 
   const pexels = results[0].status === 'fulfilled' ? results[0].value : [];
   const unsplash = results[1].status === 'fulfilled' ? results[1].value : [];
   const wallhaven = results[2].status === 'fulfilled' ? results[2].value : [];
+  const reddit = results[3].status === 'fulfilled' ? results[3].value : [];
 
-  if (pexels.length === 0 && unsplash.length === 0 && wallhaven.length === 0) {
+  console.log(`Sources: Pexels=${pexels.length}, Unsplash=${unsplash.length}, Wallhaven=${wallhaven.length}, Reddit=${reddit.length}`);
+
+  if (pexels.length === 0 && unsplash.length === 0 && wallhaven.length === 0 && reddit.length === 0) {
     // Use Picsum as fallback when all API sources fail
     console.log('All API sources failed, using Picsum fallback');
     return null; // Will trigger fallback
   }
 
-  return mergeResults(pexels, unsplash, wallhaven);
+  return mergeResults(pexels, unsplash, wallhaven, reddit);
 }
 
 // GET trending wallpapers
@@ -97,6 +103,7 @@ export async function getTrending(page = 1, perPage = 30) {
       fetchPexelsTrending,
       fetchUnsplashTrending,
       fetchWallhavenTrending,
+      fetchRedditTrending,
       page,
       perPage
     );
@@ -126,6 +133,7 @@ export async function searchWallpapers(query, page = 1, perPage = 30) {
       fetchPexelsSearch,
       fetchUnsplashSearch,
       fetchWallhavenSearch,
+      fetchRedditSearch,
       query,
       page,
       perPage

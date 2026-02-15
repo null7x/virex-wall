@@ -83,12 +83,14 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error' });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`🚀 VIREX Backend running on port ${PORT}`);
-  
-  // Start self-ping to prevent Koyeb cold starts
-  startSelfPing();
-});
+// Start server only if not running on Vercel
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`🚀 VIREX Backend running on port ${PORT}`);
+    
+    // Start self-ping to prevent Koyeb cold starts
+    startSelfPing();
+  });
+}
 
 export default app;

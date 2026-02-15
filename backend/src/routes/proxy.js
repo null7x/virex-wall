@@ -21,6 +21,10 @@ router.get('/image', async (req, res) => {
     'picsum.photos',
     'fastly.picsum.photos',
     'i.picsum.photos',
+    'i.redd.it',
+    'preview.redd.it',
+    'i.imgur.com',
+    'imgur.com',
   ];
 
   try {

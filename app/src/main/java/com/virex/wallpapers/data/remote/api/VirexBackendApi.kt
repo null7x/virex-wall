@@ -15,8 +15,8 @@ import retrofit2.http.Query
 interface VirexBackendApi {
 
     companion object {
-        // Production URL on Koyeb
-        const val BASE_URL = "https://relieved-pigeon-virex-9ada7548.koyeb.app/"
+        // Production URL on Vercel (works in Russia)
+        const val BASE_URL = "https://backend-tau-orcin-14.vercel.app/"
     }
 
     /**

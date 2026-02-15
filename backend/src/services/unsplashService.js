@@ -13,33 +13,39 @@ const client = axios.create({
   }
 });
 
-// Extract category from tags or title
+// Extract category from tags or title - comprehensive matching
 function extractCategory(tags, title) {
   const keywords = {
-    nature: ['nature', 'landscape', 'forest', 'mountain', 'lake'],
-    space: ['space', 'galaxy', 'stars', 'nebula'],
-    city: ['city', 'urban', 'architecture', 'building'],
-    amoled: ['dark', 'black', 'night', 'minimal'],
-    ocean: ['ocean', 'sea', 'beach', 'water'],
-    anime: ['anime', 'art', 'illustration'],
-    cars: ['car', 'vehicle', 'automotive'],
-    cyberpunk: ['cyberpunk', 'neon', 'futuristic'],
-    fantasy: ['fantasy', 'magical', 'mythical'],
-    minimal: ['minimal', 'simple', 'abstract']
+    nature: ['nature', 'landscape', 'forest', 'mountain', 'lake', 'tree', 'valley', 'river', 'sunset', 'sunrise'],
+    space: ['space', 'galaxy', 'stars', 'nebula', 'planet', 'cosmos', 'moon', 'universe'],
+    city: ['city', 'urban', 'architecture', 'building', 'skyline', 'street', 'bridge', 'tower'],
+    amoled: ['dark', 'black', 'night', 'shadow', 'moody'],
+    ocean: ['ocean', 'sea', 'beach', 'water', 'wave', 'coast', 'underwater'],
+    mountain: ['mountain', 'peak', 'alps', 'hill', 'cliff'],
+    anime: ['anime', 'illustration', 'cartoon', 'digital art'],
+    cars: ['car', 'vehicle', 'automotive', 'racing', 'supercar'],
+    cyberpunk: ['cyberpunk', 'neon', 'futuristic', 'synthwave', 'glow'],
+    fantasy: ['fantasy', 'magical', 'mythical', 'dragon', 'castle'],
+    minimal: ['minimal', 'simple', 'clean', 'flat'],
+    abstract: ['abstract', 'pattern', 'geometric', 'art', 'texture'],
+    flowers: ['flower', 'floral', 'rose', 'plant', 'garden', 'bloom'],
+    gradient: ['gradient', 'color', 'colorful', 'vibrant'],
+    gaming: ['game', 'gaming', 'gamer', 'esports']
   };
   
   const searchText = [...tags, title].join(' ').toLowerCase();
   for (const [cat, kws] of Object.entries(keywords)) {
     if (kws.some(kw => searchText.includes(kw))) return cat;
   }
-  return 'general';
+  return 'abstract';
 }
 
 function transformPhoto(photo) {
   const title = photo.description || photo.alt_description || 'Unsplash Wallpaper';
   const rawTags = photo.tags?.map(t => t.title) || [];
   const category = extractCategory(rawTags, title);
-  const tags = rawTags.length > 0 ? [...rawTags.slice(0, 5), category] : [category];
+  // Always include tags for better categorization
+  const tags = rawTags.length > 0 ? [...rawTags.slice(0, 8), category] : [category, 'abstract'];
   
   return {
     id: photo.id,

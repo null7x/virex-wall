@@ -1,19 +1,29 @@
 import axios from 'axios';
 
-// Reddit wallpaper subreddits with category mapping
+// Reddit wallpaper subreddits with category mapping - improved coverage
 const SUBREDDITS = {
-  'wallpapers': 'general',
-  'wallpaper': 'general', 
+  'wallpapers': 'abstract',
+  'wallpaper': 'abstract', 
   'AMOLEDBACKGROUNDS': 'amoled',
-  'phonewallpapers': 'general',
-  'MobileWallpaper': 'general',
+  'Amoledbackgrounds': 'amoled',
+  'phonewallpapers': 'abstract',
+  'MobileWallpaper': 'abstract',
   'EarthPorn': 'nature',
+  'NaturePics': 'nature',
   'spaceporn': 'space',
   'CityPorn': 'city',
   'AnimeWallpaper': 'anime',
-  'Art': 'fantasy',
+  'Art': 'abstract',
   'Cyberpunk': 'cyberpunk',
-  'carporn': 'cars'
+  'cyberpunkgame': 'cyberpunk',
+  'carporn': 'cars',
+  'ImaginaryLandscapes': 'fantasy',
+  'ImaginaryMindscapes': 'fantasy',
+  'DigitalArt': 'abstract',
+  'MinimalWallpaper': 'minimal',
+  'MountainPics': 'mountain',
+  'seaporn': 'ocean',
+  'waterporn': 'ocean'
 };
 
 // User agent required by Reddit API

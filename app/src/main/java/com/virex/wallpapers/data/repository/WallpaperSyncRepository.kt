@@ -277,27 +277,80 @@ constructor(
     }
 
     private fun determineCategoryFromTags(tags: List<String>?): SyncCategory {
-        if (tags.isNullOrEmpty()) return SyncCategory.NEW
+        if (tags.isNullOrEmpty()) return SyncCategory.ABSTRACT
         
         val tagsLower = tags.map { it.lowercase() }
+        val allText = tagsLower.joinToString(" ")
         
         return when {
-            tagsLower.any { it.contains("nature") || it.contains("landscape") || it.contains("forest") } -> SyncCategory.NATURE
-            tagsLower.any { it.contains("abstract") || it.contains("pattern") || it.contains("geometric") } -> SyncCategory.ABSTRACT
-            tagsLower.any { it.contains("minimal") || it.contains("simple") || it.contains("clean") } -> SyncCategory.MINIMAL
-            tagsLower.any { it.contains("dark") || it.contains("black") || it.contains("amoled") } -> SyncCategory.AMOLED
-            tagsLower.any { it.contains("space") || it.contains("galaxy") || it.contains("stars") || it.contains("cosmos") } -> SyncCategory.SPACE
-            tagsLower.any { it.contains("city") || it.contains("urban") || it.contains("architecture") } -> SyncCategory.CITY
-            tagsLower.any { it.contains("anime") || it.contains("manga") || it.contains("illustration") } -> SyncCategory.ANIME
-            tagsLower.any { it.contains("cyberpunk") || it.contains("neon") || it.contains("futuristic") } -> SyncCategory.CYBERPUNK
-            tagsLower.any { it.contains("car") || it.contains("vehicle") || it.contains("automotive") } -> SyncCategory.CARS
-            tagsLower.any { it.contains("ocean") || it.contains("sea") || it.contains("water") } -> SyncCategory.OCEAN
-            tagsLower.any { it.contains("mountain") || it.contains("peak") || it.contains("alps") } -> SyncCategory.MOUNTAIN
-            tagsLower.any { it.contains("flower") || it.contains("floral") || it.contains("rose") } -> SyncCategory.FLOWERS
-            tagsLower.any { it.contains("game") || it.contains("gaming") || it.contains("esports") } -> SyncCategory.GAMING
-            tagsLower.any { it.contains("fantasy") || it.contains("dragon") || it.contains("magical") } -> SyncCategory.FANTASY
-            tagsLower.any { it.contains("gradient") || it.contains("color") } -> SyncCategory.GRADIENT
-            else -> SyncCategory.NEW
+            // AMOLED/Dark first - most common for wallpaper apps
+            allText.contains("amoled") || allText.contains("pure black") || 
+            (allText.contains("black") && allText.contains("dark")) -> SyncCategory.AMOLED
+            
+            allText.contains("dark") || allText.contains("night") || 
+            allText.contains("moody") -> SyncCategory.DARK
+            
+            // Nature categories
+            allText.contains("nature") || allText.contains("landscape") || 
+            allText.contains("forest") || allText.contains("tree") -> SyncCategory.NATURE
+            
+            allText.contains("mountain") || allText.contains("peak") || 
+            allText.contains("alps") || allText.contains("hill") -> SyncCategory.MOUNTAIN
+            
+            allText.contains("ocean") || allText.contains("sea") || 
+            allText.contains("water") || allText.contains("beach") || 
+            allText.contains("wave") -> SyncCategory.OCEAN
+            
+            allText.contains("flower") || allText.contains("floral") || 
+            allText.contains("rose") || allText.contains("plant") || 
+            allText.contains("garden") -> SyncCategory.FLOWERS
+            
+            // Space & Sci-fi
+            allText.contains("space") || allText.contains("galaxy") || 
+            allText.contains("stars") || allText.contains("cosmos") || 
+            allText.contains("nebula") || allText.contains("planet") -> SyncCategory.SPACE
+            
+            allText.contains("cyberpunk") || allText.contains("neon") || 
+            allText.contains("futuristic") || allText.contains("sci-fi") -> SyncCategory.CYBERPUNK
+            
+            // Art styles
+            allText.contains("anime") || allText.contains("manga") || 
+            allText.contains("illustration") || allText.contains("cartoon") -> SyncCategory.ANIME
+            
+            allText.contains("abstract") || allText.contains("pattern") || 
+            allText.contains("geometric") || allText.contains("art") -> SyncCategory.ABSTRACT
+            
+            allText.contains("minimal") || allText.contains("simple") || 
+            allText.contains("clean") -> SyncCategory.MINIMAL
+            
+            allText.contains("gradient") || allText.contains("color") || 
+            allText.contains("colorful") -> SyncCategory.GRADIENT
+            
+            // Urban
+            allText.contains("city") || allText.contains("urban") || 
+            allText.contains("architecture") || allText.contains("building") || 
+            allText.contains("skyline") || allText.contains("street") -> SyncCategory.CITY
+            
+            // Other specific
+            allText.contains("car") || allText.contains("vehicle") || 
+            allText.contains("automotive") || allText.contains("racing") -> SyncCategory.CARS
+            
+            allText.contains("game") || allText.contains("gaming") || 
+            allText.contains("esports") -> SyncCategory.GAMING
+            
+            allText.contains("fantasy") || allText.contains("dragon") || 
+            allText.contains("magical") || allText.contains("mythical") -> SyncCategory.FANTASY
+            
+            allText.contains("texture") || allText.contains("material") || 
+            allText.contains("surface") -> SyncCategory.TEXTURE
+            
+            allText.contains("skull") || allText.contains("skeleton") -> SyncCategory.SKULL
+            
+            allText.contains("neon") || allText.contains("glow") || 
+            allText.contains("light") -> SyncCategory.NEON
+            
+            // Fallback to abstract instead of NEW
+            else -> SyncCategory.ABSTRACT
         }
     }
 

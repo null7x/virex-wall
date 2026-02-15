@@ -13,29 +13,42 @@ const client = axios.create({
   }
 });
 
-// Extract tags from title/alt text
+// Extract tags from title/alt text - comprehensive keyword matching
 function extractTags(text) {
-  if (!text) return [];
-  const keywords = ['nature', 'landscape', 'forest', 'mountain', 'ocean', 'sea', 'beach',
-    'city', 'urban', 'architecture', 'building', 'street',
-    'space', 'galaxy', 'stars', 'nebula', 'planet',
-    'abstract', 'pattern', 'geometric', 'minimal', 'simple',
-    'dark', 'black', 'amoled', 'night',
-    'anime', 'art', 'illustration', 'digital',
-    'car', 'vehicle', 'automotive',
-    'cyberpunk', 'neon', 'futuristic',
-    'fantasy', 'dragon', 'magical',
-    'flower', 'floral', 'plant', 'garden',
-    'sunset', 'sunrise', 'sky', 'clouds',
-    'animal', 'wildlife', 'cat', 'dog'];
+  if (!text) return ['abstract'];
+  const keywords = [
+    // Nature
+    'nature', 'landscape', 'forest', 'mountain', 'ocean', 'sea', 'beach', 'tree', 'water', 'lake', 'river', 'hill', 'valley', 'wave', 'sunset', 'sunrise', 'sky', 'clouds',
+    // Urban
+    'city', 'urban', 'architecture', 'building', 'street', 'skyline', 'bridge', 'tower',
+    // Space
+    'space', 'galaxy', 'stars', 'nebula', 'planet', 'cosmos', 'moon', 'universe',
+    // Art styles
+    'abstract', 'pattern', 'geometric', 'minimal', 'simple', 'art', 'texture', 'gradient',
+    // Dark/AMOLED
+    'dark', 'black', 'amoled', 'night', 'moody', 'shadow',
+    // Animation/Gaming
+    'anime', 'illustration', 'digital', 'cartoon', 'game', 'gaming',
+    // Vehicles
+    'car', 'vehicle', 'automotive', 'racing', 'supercar',
+    // Sci-fi
+    'cyberpunk', 'neon', 'futuristic', 'sci-fi', 'glow',
+    // Fantasy
+    'fantasy', 'dragon', 'magical', 'mythical',
+    // Plants
+    'flower', 'floral', 'plant', 'garden', 'rose', 'leaf',
+    // Animals
+    'animal', 'wildlife', 'cat', 'dog', 'bird'
+  ];
   const lowerText = text.toLowerCase();
-  return keywords.filter(kw => lowerText.includes(kw));
+  const found = keywords.filter(kw => lowerText.includes(kw));
+  // Always return at least one tag
+  return found.length > 0 ? found : ['abstract'];
 }
 
 function transformPhoto(photo) {
   const title = photo.alt || 'Pexels Wallpaper';
   const tags = extractTags(title);
-  if (tags.length === 0) tags.push('general');
   
   return {
     id: photo.id,

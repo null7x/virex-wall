@@ -29,7 +29,7 @@ const NATURE_IDS = [10, 11, 14, 15, 27, 28, 29, 37, 47, 110, 116, 129, 142, 147,
 const CITY_IDS = [274, 275, 276, 277, 312, 336, 359, 367, 374, 384, 402, 416, 445, 447, 479, 491, 493, 513, 524, 534];
 const ABSTRACT_IDS = [5, 21, 35, 36, 45, 56, 67, 95, 106, 119, 153, 166, 179, 189, 199, 209, 289, 299, 309, 319];
 
-function createWallpaper(id, category = 'general', source = 'picsum') {
+function createWallpaper(id, category = 'abstract', source = 'picsum') {
   const width = 1080;
   const height = 1920;
   
@@ -49,7 +49,8 @@ function createWallpaper(id, category = 'general', source = 'picsum') {
     photographer: 'Picsum',
     photographer_url: null,
     color: null,
-    tags: [category]
+    // Include multiple tags for better categorization
+    tags: [category, 'abstract', 'art']
   };
 }
 
@@ -57,7 +58,12 @@ export function getFallbackTrending(page = 1, perPage = 30) {
   const start = (page - 1) * perPage;
   const ids = generateIds(200);
   
-  return ids.slice(start, start + perPage).map(id => createWallpaper(id, 'general'));
+  // Mix of categories for trending
+  return ids.slice(start, start + perPage).map((id, i) => {
+    const categories = ['abstract', 'nature', 'minimal', 'dark'];
+    const cat = categories[i % categories.length];
+    return createWallpaper(id, cat);
+  });
 }
 
 export function getFallbackSearch(query, page = 1, perPage = 30) {

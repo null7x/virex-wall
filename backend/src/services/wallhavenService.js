@@ -9,18 +9,23 @@ const client = axios.create({
   httpAgent: createHttpAgent()
 });
 
-// Category keywords for tag extraction
+// Category keywords for tag extraction - comprehensive
 const CATEGORY_KEYWORDS = {
-  nature: ['nature', 'landscape', 'forest', 'mountain', 'lake', 'tree'],
-  space: ['space', 'galaxy', 'stars', 'nebula', 'planet', 'cosmos'],
-  anime: ['anime', 'manga', 'illustration', 'digital art'],
-  cyberpunk: ['cyberpunk', 'neon', 'futuristic', 'sci-fi'],
-  city: ['city', 'urban', 'architecture', 'building', 'skyline'],
-  amoled: ['dark', 'black', 'amoled', 'minimal dark'],
-  cars: ['car', 'vehicle', 'automotive', 'racing'],
-  fantasy: ['fantasy', 'dragon', 'magical', 'mythical'],
-  minimal: ['minimal', 'simple', 'clean', 'abstract'],
-  ocean: ['ocean', 'sea', 'beach', 'water', 'wave']
+  nature: ['nature', 'landscape', 'forest', 'mountain', 'lake', 'tree', 'valley', 'river', 'sunset', 'sunrise'],
+  space: ['space', 'galaxy', 'stars', 'nebula', 'planet', 'cosmos', 'moon', 'universe', 'astronomical'],
+  anime: ['anime', 'manga', 'illustration', 'digital art', 'cartoon', 'japanese'],
+  cyberpunk: ['cyberpunk', 'neon', 'futuristic', 'sci-fi', 'synthwave', 'retro future'],
+  city: ['city', 'urban', 'architecture', 'building', 'skyline', 'street', 'metro', 'bridge'],
+  amoled: ['dark', 'black', 'amoled', 'minimal dark', 'night', 'shadow', 'moody'],
+  cars: ['car', 'vehicle', 'automotive', 'racing', 'supercar', 'sports car', 'motorcycle'],
+  fantasy: ['fantasy', 'dragon', 'magical', 'mythical', 'castle', 'medieval', 'sword'],
+  minimal: ['minimal', 'simple', 'clean', 'abstract', 'geometric', 'flat'],
+  ocean: ['ocean', 'sea', 'beach', 'water', 'wave', 'underwater', 'coast'],
+  mountain: ['mountain', 'peak', 'alps', 'hill', 'cliff', 'rocky'],
+  flowers: ['flower', 'floral', 'rose', 'plant', 'garden', 'bloom'],
+  gradient: ['gradient', 'color', 'colorful', 'vibrant'],
+  gaming: ['game', 'gaming', 'video game', 'esports', 'gamer'],
+  texture: ['texture', 'material', 'surface', 'pattern']
 };
 
 function categorizeByTags(tags) {
@@ -30,13 +35,16 @@ function categorizeByTags(tags) {
       return category;
     }
   }
-  return 'general';
+  return 'abstract';
 }
 
 function transformWallpaper(wallpaper) {
   const rawTags = wallpaper.tags?.map(t => t.name) || [];
   const category = categorizeByTags(rawTags);
-  const tags = rawTags.length > 0 ? [...rawTags.slice(0, 5), category] : [category];
+  // Include raw tags + detected category for better categorization
+  const tags = rawTags.length > 0 
+    ? [...rawTags.slice(0, 8), category] 
+    : [category, 'abstract'];
   
   return {
     id: wallpaper.id,

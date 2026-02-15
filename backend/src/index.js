@@ -45,6 +45,29 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// Reddit test endpoint
+app.get('/test-reddit', async (req, res) => {
+  const axios = (await import('axios')).default;
+  try {
+    const response = await axios.get('https://www.reddit.com/r/wallpapers/hot.json?limit=3&raw_json=1', {
+      headers: { 'User-Agent': 'VIREX-Wallpapers/1.0' },
+      timeout: 15000
+    });
+    res.json({ 
+      status: 'ok', 
+      posts: response.data?.data?.children?.length || 0,
+      sample: response.data?.data?.children?.[0]?.data?.title
+    });
+  } catch (error) {
+    res.json({ 
+      status: 'error', 
+      message: error.message,
+      code: error.response?.status,
+      data: error.response?.data
+    });
+  }
+});
+
 // Ping endpoint for Koyeb anti-sleep
 app.get('/ping', (req, res) => {
   res.json({ pong: true });

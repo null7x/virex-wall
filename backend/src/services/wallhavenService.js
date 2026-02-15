@@ -9,10 +9,38 @@ const client = axios.create({
   httpAgent: createHttpAgent()
 });
 
+// Category keywords for tag extraction
+const CATEGORY_KEYWORDS = {
+  nature: ['nature', 'landscape', 'forest', 'mountain', 'lake', 'tree'],
+  space: ['space', 'galaxy', 'stars', 'nebula', 'planet', 'cosmos'],
+  anime: ['anime', 'manga', 'illustration', 'digital art'],
+  cyberpunk: ['cyberpunk', 'neon', 'futuristic', 'sci-fi'],
+  city: ['city', 'urban', 'architecture', 'building', 'skyline'],
+  amoled: ['dark', 'black', 'amoled', 'minimal dark'],
+  cars: ['car', 'vehicle', 'automotive', 'racing'],
+  fantasy: ['fantasy', 'dragon', 'magical', 'mythical'],
+  minimal: ['minimal', 'simple', 'clean', 'abstract'],
+  ocean: ['ocean', 'sea', 'beach', 'water', 'wave']
+};
+
+function categorizeByTags(tags) {
+  const tagStr = tags.join(' ').toLowerCase();
+  for (const [category, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (keywords.some(kw => tagStr.includes(kw))) {
+      return category;
+    }
+  }
+  return 'general';
+}
+
 function transformWallpaper(wallpaper) {
+  const rawTags = wallpaper.tags?.map(t => t.name) || [];
+  const category = categorizeByTags(rawTags);
+  const tags = rawTags.length > 0 ? [...rawTags.slice(0, 5), category] : [category];
+  
   return {
     id: wallpaper.id,
-    title: 'Wallhaven Wallpaper',
+    title: rawTags[0] || 'Wallhaven Wallpaper',
     url: wallpaper.path,
     thumbnail_url: wallpaper.thumbs?.small || wallpaper.thumbs?.original,
     preview_url: wallpaper.thumbs?.small || wallpaper.thumbs?.original,
@@ -20,7 +48,7 @@ function transformWallpaper(wallpaper) {
     width: wallpaper.dimension_x || 1080,
     height: wallpaper.dimension_y || 1920,
     photographer: 'Wallhaven',
-    tags: wallpaper.tags?.map(t => t.name) || []
+    tags
   };
 }
 

@@ -1,19 +1,26 @@
 import axios from 'axios';
 
-// Reddit wallpaper subreddits
-const SUBREDDITS = [
-  'wallpapers',
-  'wallpaper', 
-  'AMOLEDBACKGROUNDS',
-  'phonewallpapers',
-  'MobileWallpaper'
-];
+// Reddit wallpaper subreddits with category mapping
+const SUBREDDITS = {
+  'wallpapers': 'general',
+  'wallpaper': 'general', 
+  'AMOLEDBACKGROUNDS': 'amoled',
+  'phonewallpapers': 'general',
+  'MobileWallpaper': 'general',
+  'EarthPorn': 'nature',
+  'spaceporn': 'space',
+  'CityPorn': 'city',
+  'AnimeWallpaper': 'anime',
+  'Art': 'fantasy',
+  'Cyberpunk': 'cyberpunk',
+  'carporn': 'cars'
+};
 
 // User agent required by Reddit API
 const USER_AGENT = 'VIREX-Wallpapers/1.0';
 
 // Fetch posts from a subreddit
-async function fetchSubreddit(subreddit, limit = 25, after = null) {
+async function fetchSubreddit(subreddit, category, limit = 25, after = null) {
   try {
     const url = `https://www.reddit.com/r/${subreddit}/hot.json`;
     const params = { limit, raw_json: 1 };
@@ -72,7 +79,7 @@ async function fetchSubreddit(subreddit, limit = 25, after = null) {
           height: data.preview?.images?.[0]?.source?.height || 1080,
           photographer: `u/${data.author}`,
           user: data.author,
-          tags: [subreddit, 'reddit'],
+          tags: [category, subreddit, 'reddit'],
           source: 'reddit'
         };
       });
@@ -84,10 +91,11 @@ async function fetchSubreddit(subreddit, limit = 25, after = null) {
 
 // Fetch trending from multiple subreddits
 export async function fetchRedditTrending(page = 1, perPage = 30) {
-  const postsPerSub = Math.ceil(perPage / SUBREDDITS.length);
+  const subredditList = Object.entries(SUBREDDITS);
+  const postsPerSub = Math.ceil(perPage / subredditList.length);
   
   const results = await Promise.allSettled(
-    SUBREDDITS.map(sub => fetchSubreddit(sub, postsPerSub))
+    subredditList.map(([sub, cat]) => fetchSubreddit(sub, cat, postsPerSub))
   );
 
   const allPosts = results
@@ -100,8 +108,31 @@ export async function fetchRedditTrending(page = 1, perPage = 30) {
     .slice(0, perPage);
 }
 
+// Determine category from query
+function categoryFromQuery(query) {
+  const q = query.toLowerCase();
+  const mapping = {
+    nature: ['nature', 'landscape', 'forest', 'mountain'],
+    space: ['space', 'galaxy', 'stars', 'nebula'],
+    city: ['city', 'urban', 'architecture'],
+    amoled: ['dark', 'black', 'amoled', 'minimal'],
+    anime: ['anime', 'manga', 'illustration'],
+    cars: ['car', 'automotive', 'vehicle'],
+    cyberpunk: ['cyberpunk', 'neon', 'futuristic'],
+    fantasy: ['fantasy', 'dragon', 'magical'],
+    ocean: ['ocean', 'sea', 'beach', 'water'],
+    minimal: ['minimal', 'simple', 'abstract']
+  };
+  for (const [cat, keywords] of Object.entries(mapping)) {
+    if (keywords.some(kw => q.includes(kw))) return cat;
+  }
+  return 'general';
+}
+
 // Search Reddit for wallpapers
 export async function fetchRedditSearch(query, page = 1, perPage = 30) {
+  const category = categoryFromQuery(query);
+  
   try {
     const url = `https://www.reddit.com/r/wallpapers+wallpaper+AMOLEDBACKGROUNDS/search.json`;
     const response = await axios.get(url, {
@@ -160,7 +191,7 @@ export async function fetchRedditSearch(query, page = 1, perPage = 30) {
           height: data.preview?.images?.[0]?.source?.height || 1080,
           photographer: `u/${data.author}`,
           user: data.author,
-          tags: [data.subreddit, 'reddit', ...query.split(' ')],
+          tags: [category, data.subreddit, 'reddit'],
           source: 'reddit'
         };
       });

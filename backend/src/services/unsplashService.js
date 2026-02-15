@@ -13,10 +13,37 @@ const client = axios.create({
   }
 });
 
+// Extract category from tags or title
+function extractCategory(tags, title) {
+  const keywords = {
+    nature: ['nature', 'landscape', 'forest', 'mountain', 'lake'],
+    space: ['space', 'galaxy', 'stars', 'nebula'],
+    city: ['city', 'urban', 'architecture', 'building'],
+    amoled: ['dark', 'black', 'night', 'minimal'],
+    ocean: ['ocean', 'sea', 'beach', 'water'],
+    anime: ['anime', 'art', 'illustration'],
+    cars: ['car', 'vehicle', 'automotive'],
+    cyberpunk: ['cyberpunk', 'neon', 'futuristic'],
+    fantasy: ['fantasy', 'magical', 'mythical'],
+    minimal: ['minimal', 'simple', 'abstract']
+  };
+  
+  const searchText = [...tags, title].join(' ').toLowerCase();
+  for (const [cat, kws] of Object.entries(keywords)) {
+    if (kws.some(kw => searchText.includes(kw))) return cat;
+  }
+  return 'general';
+}
+
 function transformPhoto(photo) {
+  const title = photo.description || photo.alt_description || 'Unsplash Wallpaper';
+  const rawTags = photo.tags?.map(t => t.title) || [];
+  const category = extractCategory(rawTags, title);
+  const tags = rawTags.length > 0 ? [...rawTags.slice(0, 5), category] : [category];
+  
   return {
     id: photo.id,
-    title: photo.description || photo.alt_description || 'Unsplash Wallpaper',
+    title,
     url: photo.urls.full,
     thumbnail_url: photo.urls.small,
     preview_url: photo.urls.small,
@@ -24,7 +51,7 @@ function transformPhoto(photo) {
     width: photo.width || 1080,
     height: photo.height || 1920,
     photographer: photo.user?.name || 'Unknown',
-    tags: photo.tags?.map(t => t.title) || []
+    tags
   };
 }
 

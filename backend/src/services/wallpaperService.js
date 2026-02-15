@@ -16,7 +16,20 @@ const CATEGORIES = {
   anime: { name: 'Anime', query: 'anime illustration art', coverUrl: 'https://picsum.photos/id/21/400/600' },
   city: { name: 'City', query: 'city urban architecture skyline', coverUrl: 'https://picsum.photos/id/274/400/600' },
   ocean: { name: 'Ocean', query: 'ocean sea beach water waves', coverUrl: 'https://picsum.photos/id/14/400/600' },
-  fantasy: { name: 'Fantasy', query: 'fantasy dragon magical mythical', coverUrl: 'https://picsum.photos/id/167/400/600' }
+  fantasy: { name: 'Fantasy', query: 'fantasy dragon magical mythical', coverUrl: 'https://picsum.photos/id/167/400/600' },
+  gaming: { name: 'Gaming', query: 'gaming video game esports', coverUrl: 'https://picsum.photos/id/119/400/600' },
+  dark: { name: 'Dark', query: 'dark aesthetic moody black', coverUrl: 'https://picsum.photos/id/1025/400/600' },
+  abstract: { name: 'Abstract', query: 'abstract art geometric fluid', coverUrl: 'https://picsum.photos/id/1076/400/600' },
+  gradient: { name: 'Gradient', query: 'gradient color smooth colorful', coverUrl: 'https://picsum.photos/id/669/400/600' },
+  neon: { name: 'Neon', query: 'neon lights glow vibrant', coverUrl: 'https://picsum.photos/id/1068/400/600' },
+  mountain: { name: 'Mountains', query: 'mountain peak alps landscape', coverUrl: 'https://picsum.photos/id/29/400/600' },
+  skull: { name: 'Skull', query: 'skull skeleton dark art', coverUrl: 'https://picsum.photos/id/1078/400/600' },
+  texture: { name: 'Texture', query: 'texture pattern surface material', coverUrl: 'https://picsum.photos/id/1044/400/600' },
+  flowers: { name: 'Flowers', query: 'flower floral rose botanical', coverUrl: 'https://picsum.photos/id/152/400/600' },
+  animals: { name: 'Animals', query: 'animal wildlife nature creature', coverUrl: 'https://picsum.photos/id/237/400/600' },
+  ultra_4k: { name: '4K', query: '4k ultra hd high resolution', coverUrl: 'https://picsum.photos/id/1084/400/600' },
+  ultra_8k: { name: '8K', query: '8k ultra quality sharp', coverUrl: 'https://picsum.photos/id/1080/400/600' },
+  new: { name: 'New', query: 'trending popular modern latest', coverUrl: 'https://picsum.photos/id/1069/400/600' }
 };
 
 // Cache for category counts

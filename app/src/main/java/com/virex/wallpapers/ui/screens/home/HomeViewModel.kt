@@ -221,13 +221,14 @@ constructor(
         viewModelScope.launch {
             try {
                 val synced = wallpaperSyncRepository.getAllSyncedWallpapers().first()
-                if (synced.isEmpty()) {
+                // Sync if fewer than 50 wallpapers (starter pack only has ~12)
+                if (synced.size < 50) {
                     val syncStatus = wallpaperSyncRepository.getSyncStatus().first()
                     if (syncStatus?.isSyncing == true) {
                         Log.d(TAG, "Initial sync already running, skipping duplicate trigger")
                         return@launch
                     }
-                    Log.d(TAG, "No synced wallpapers, triggering Wallhaven sync...")
+                    Log.d(TAG, "Only ${synced.size} synced wallpapers, triggering sync...")
                     val result = wallpaperSyncRepository.performSync()
                     if (result is SyncResult.Success && result.newCount > 0) {
                         Log.d(TAG, "Sync fetched ${result.newCount} wallpapers, reloading UI...")

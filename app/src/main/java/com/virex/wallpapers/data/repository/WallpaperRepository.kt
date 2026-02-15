@@ -42,15 +42,16 @@ constructor(
         private const val TAG = "WallpaperRepo"
     }
     
-    /** Convert VirexWallpaper to Wallpaper */
+    /** Convert VirexWallpaper to Wallpaper with category from tags */
     private fun VirexWallpaper.toWallpaper(): Wallpaper {
+        val (catId, catName) = determineCategoryFromTags(tags)
         return Wallpaper(
             id = id,
             title = title,
             thumbnailUrl = thumbnailUrl,
             fullUrl = url,
-            categoryId = "general",
-            categoryName = "General",
+            categoryId = catId,
+            categoryName = catName,
             tags = tags ?: emptyList(),
             width = width,
             height = height,
@@ -58,6 +59,29 @@ constructor(
             downloads = 0,
             source = source
         )
+    }
+    
+    /** Determine category from wallpaper tags */
+    private fun determineCategoryFromTags(tags: List<String>?): Pair<String, String> {
+        if (tags.isNullOrEmpty()) return "general" to "General"
+        val tagsLower = tags.map { it.lowercase() }
+        return when {
+            tagsLower.any { it.contains("nature") || it.contains("landscape") || it.contains("forest") } -> "nature" to "Nature"
+            tagsLower.any { it.contains("abstract") || it.contains("pattern") || it.contains("geometric") } -> "abstract" to "Abstract"
+            tagsLower.any { it.contains("minimal") || it.contains("simple") || it.contains("clean") } -> "minimal" to "Minimal"
+            tagsLower.any { it.contains("dark") || it.contains("black") || it.contains("amoled") } -> "amoled" to "AMOLED"
+            tagsLower.any { it.contains("space") || it.contains("galaxy") || it.contains("stars") } -> "space" to "Space"
+            tagsLower.any { it.contains("city") || it.contains("urban") || it.contains("architecture") } -> "city" to "City"
+            tagsLower.any { it.contains("anime") || it.contains("manga") || it.contains("illustration") } -> "anime" to "Anime"
+            tagsLower.any { it.contains("cyberpunk") || it.contains("neon") || it.contains("futuristic") } -> "cyberpunk" to "Cyberpunk"
+            tagsLower.any { it.contains("car") || it.contains("vehicle") || it.contains("automotive") } -> "cars" to "Cars"
+            tagsLower.any { it.contains("fantasy") || it.contains("dragon") || it.contains("magical") } -> "fantasy" to "Fantasy"
+            tagsLower.any { it.contains("game") || it.contains("gaming") } -> "gaming" to "Gaming"
+            tagsLower.any { it.contains("ocean") || it.contains("sea") || it.contains("water") } -> "ocean" to "Ocean"
+            tagsLower.any { it.contains("mountain") || it.contains("peak") } -> "mountain" to "Mountain"
+            tagsLower.any { it.contains("flower") || it.contains("floral") } -> "flowers" to "Flowers"
+            else -> "general" to "General"
+        }
     }
 
     // ==================== WALLPAPERS ====================
@@ -72,15 +96,27 @@ constructor(
         try {
             // PRIMARY: Load from VIREX Backend
             android.util.Log.d(TAG, "Loading wallpapers from VIREX Backend...")
-            val response = virexBackendApi.getTrending(page = 1, perPage = 100)
+            val response = withTimeoutOrNull(15_000L) {
+                virexBackendApi.getTrending(page = 1, perPage = 100)
+            }
             
-            if (response.wallpapers.isNotEmpty()) {
+            if (response != null && response.wallpapers.isNotEmpty()) {
                 val wallpapers = response.wallpapers.map { it.toWallpaper() }
                 android.util.Log.d(TAG, "Backend returned ${wallpapers.size} wallpapers")
-                emit(UiState.Success(wallpapers))
+                
+                // Also merge in local synced wallpapers for more content
+                val synced = syncedWallpaperDao.getAllSyncedWallpapersList()
+                val syncedWallpapers = synced.map { it.toWallpaper() }
+                
+                val allIds = wallpapers.map { it.id }.toSet()
+                val extraLocal = syncedWallpapers.filter { it.id !in allIds }
+                
+                val combined = wallpapers + extraLocal
+                android.util.Log.d(TAG, "Combined: ${combined.size} wallpapers (${wallpapers.size} backend + ${extraLocal.size} local)")
+                emit(UiState.Success(combined))
             } else {
                 // Fallback to local
-                android.util.Log.w(TAG, "Backend empty, falling back to local")
+                android.util.Log.w(TAG, "Backend empty or timeout, falling back to local")
                 emitLocalWallpapers()
             }
         } catch (e: Exception) {

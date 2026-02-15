@@ -19,18 +19,32 @@ export function getCategories() {
   return Object.entries(CATEGORIES).map(([id, data]) => ({
     id,
     name: data.name,
-    coverUrl: data.coverUrl,
+    coverUrl: proxyUrl(data.coverUrl),
     count: 100
   }));
 }
 
+// Backend base URL for image proxy
+const BACKEND_URL = process.env.BACKEND_URL || 'https://relieved-pigeon-virex-9ada7548.koyeb.app';
+
+// Proxy image URL through our backend to bypass geo-blocks in Russia
+function proxyUrl(originalUrl) {
+  if (!originalUrl) return originalUrl;
+  return `${BACKEND_URL}/proxy/image?url=${encodeURIComponent(originalUrl)}`;
+}
+
 // Unified wallpaper format - matches Android VirexWallpaper model
 function normalizeWallpaper(raw, source) {
+  const originalUrl = raw.full_url || raw.url;
+  const thumbnailUrl = raw.preview_url || raw.thumbnail_url;
+  
   return {
     id: `${source}_${raw.id}`,
     title: raw.title || raw.alt || raw.description || 'Wallpaper',
-    url: raw.full_url || raw.url,
-    thumbnail_url: raw.preview_url || raw.thumbnail_url,
+    url: proxyUrl(originalUrl),
+    thumbnail_url: proxyUrl(thumbnailUrl),
+    original_url: originalUrl,
+    original_thumbnail_url: thumbnailUrl,
     width: raw.width || 1080,
     height: raw.height || 1920,
     source,

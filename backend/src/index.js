@@ -5,6 +5,7 @@ import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 
 import wallpapersRouter from './routes/wallpapers.js';
+import proxyRouter from './routes/proxy.js';
 import { startSelfPing } from './utils/selfPing.js';
 
 const app = express();
@@ -26,10 +27,10 @@ app.use(cors({
 // Compression for faster responses
 app.use(compression());
 
-// Rate limiting - 100 requests per minute
+// Rate limiting - 200 requests per minute (higher for image proxy)
 const limiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 100,
+  max: 200,
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
   legacyHeaders: false
@@ -67,6 +68,9 @@ app.get('/', (req, res) => {
 
 // API routes
 app.use('/wallpapers', wallpapersRouter);
+
+// Image proxy for Russia (bypasses CDN geo-blocks)
+app.use('/proxy', proxyRouter);
 
 // 404 handler
 app.use((req, res) => {

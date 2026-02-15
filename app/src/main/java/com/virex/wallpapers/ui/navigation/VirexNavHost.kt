@@ -98,15 +98,29 @@ fun VirexNavHost() {
                     VirexBottomBar(
                             currentRoute = currentDestination?.route,
                             onNavigate = { route ->
+                                android.util.Log.d("VirexNav", "Navigating to: $route from ${currentDestination?.route}")
+                                // Use simple navigation for bottom bar items
                                 navController.navigate(route) {
+                                    // Pop everything up to start destination
                                     popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+                                        inclusive = false
+                                        saveState = false
                                     }
                                     launchSingleTop = true
-                                    restoreState = true
+                                    restoreState = false
                                 }
                             },
-                            onFabClick = { navController.navigate(Screen.Generator.route) }
+                            onFabClick = { 
+                                android.util.Log.d("VirexNav", "FAB clicked, going to generator")
+                                navController.navigate(Screen.Generator.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        inclusive = false
+                                        saveState = false
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = false
+                                }
+                            }
                     )
                 }
             }

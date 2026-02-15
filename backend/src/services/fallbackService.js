@@ -6,6 +6,15 @@
 // Picsum.photos - completely free, no API key needed
 const PICSUM_BASE = 'https://picsum.photos';
 
+// Backend URL for proxying images
+const BACKEND_URL = process.env.BACKEND_URL || 'https://backend-tau-orcin-14.vercel.app';
+
+// Proxy URL through our backend to bypass geo-blocks
+function proxyUrl(originalUrl) {
+  if (!originalUrl) return originalUrl;
+  return `${BACKEND_URL}/proxy/image?url=${encodeURIComponent(originalUrl)}`;
+}
+
 // Generate random wallpaper IDs
 function generateIds(count = 30, seed = 0) {
   const ids = [];
@@ -24,11 +33,16 @@ function createWallpaper(id, source = 'picsum') {
   const width = 1080;
   const height = 1920;
   
+  const fullUrl = `${PICSUM_BASE}/id/${id}/${width}/${height}.jpg`;
+  const thumbUrl = `${PICSUM_BASE}/id/${id}/400/600.jpg`;
+  
   return {
     id: `${source}_${id}`,
     title: `Wallpaper #${id}`,
-    url: `${PICSUM_BASE}/id/${id}/${width}/${height}.jpg`,
-    thumbnail_url: `${PICSUM_BASE}/id/${id}/400/600.jpg`,
+    url: proxyUrl(fullUrl),
+    thumbnail_url: proxyUrl(thumbUrl),
+    original_url: fullUrl,
+    original_thumbnail_url: thumbUrl,
     width,
     height,
     source,

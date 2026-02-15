@@ -50,7 +50,10 @@ app.get('/test-reddit', async (req, res) => {
   const axios = (await import('axios')).default;
   try {
     const response = await axios.get('https://www.reddit.com/r/wallpapers/hot.json?limit=3&raw_json=1', {
-      headers: { 'User-Agent': 'VIREX-Wallpapers/1.0' },
+      headers: { 
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json'
+      },
       timeout: 15000
     });
     res.json({ 

@@ -26,8 +26,8 @@ const SUBREDDITS = {
   'waterporn': 'ocean'
 };
 
-// User agent required by Reddit API
-const USER_AGENT = 'VIREX-Wallpapers/1.0';
+// User agent - using browser-like agent to avoid Reddit blocking
+const USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36';
 
 // Fetch posts from a subreddit
 async function fetchSubreddit(subreddit, category, limit = 25, after = null) {
@@ -37,9 +37,13 @@ async function fetchSubreddit(subreddit, category, limit = 25, after = null) {
     if (after) params.after = after;
 
     const response = await axios.get(url, {
-      headers: { 'User-Agent': USER_AGENT },
+      headers: { 
+        'User-Agent': USER_AGENT,
+        'Accept': 'application/json',
+        'Accept-Language': 'en-US,en;q=0.9'
+      },
       params,
-      timeout: 10000
+      timeout: 15000
     });
 
     const posts = response.data?.data?.children || [];
@@ -146,7 +150,11 @@ export async function fetchRedditSearch(query, page = 1, perPage = 30) {
   try {
     const url = `https://www.reddit.com/r/wallpapers+wallpaper+AMOLEDBACKGROUNDS/search.json`;
     const response = await axios.get(url, {
-      headers: { 'User-Agent': USER_AGENT },
+      headers: { 
+        'User-Agent': USER_AGENT,
+        'Accept': 'application/json',
+        'Accept-Language': 'en-US,en;q=0.9'
+      },
       params: {
         q: query,
         restrict_sr: true,
@@ -154,7 +162,7 @@ export async function fetchRedditSearch(query, page = 1, perPage = 30) {
         limit: perPage,
         raw_json: 1
       },
-      timeout: 10000
+      timeout: 15000
     });
 
     const posts = response.data?.data?.children || [];

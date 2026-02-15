@@ -1,0 +1,102 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Build Debug APK",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"assembleDebug",
+				"--console=plain"
+			],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": [],
+			"detail": "Build debug APK"
+		},
+		{
+			"label": "Build Release APK",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"assembleRelease",
+				"--console=plain"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Build release APK"
+		},
+		{
+			"label": "Build Release AAB (Bundle)",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"bundleRelease",
+				"--console=plain"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Build release AAB for Google Play"
+		},
+		{
+			"label": "Install Debug APK",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"installDebug",
+				"--console=plain"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Install debug APK on connected device"
+		},
+		{
+			"label": "Clean Project",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"clean",
+				"--console=plain"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Clean build outputs"
+		},
+		{
+			"label": "Run Lint",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"lint",
+				"--console=plain"
+			],
+			"group": "test",
+			"problemMatcher": [],
+			"detail": "Run Android Lint checks"
+		},
+		{
+			"label": "Sync Gradle",
+			"type": "shell",
+			"command": "./gradlew",
+			"args": [
+				"--refresh-dependencies",
+				"--console=plain"
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Sync Gradle dependencies"
+		},
+		{
+			"label": "Build Debug APK Windows",
+			"type": "shell",
+			"command": "gradlew.bat",
+			"args": [
+				"assembleDebug",
+				"--console=plain"
+			],
+			"group": "build"
+		}
+	]
+}

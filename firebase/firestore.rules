@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Wallpapers collection - public read, admin write
+    match /wallpapers/{wallpaperId} {
+      allow read: if true;
+      allow write: if false; // Only admin via Firebase Console or Cloud Functions
+    }
+    
+    // Categories collection - public read, admin write
+    match /categories/{categoryId} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // User data - authenticated user only
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+      
+      // User favorites
+      match /favorites/{favoriteId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+      
+      // User downloads history
+      match /downloads/{downloadId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+    }
+    
+    // App config - public read
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

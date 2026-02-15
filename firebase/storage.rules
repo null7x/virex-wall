@@ -1,0 +1,23 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Wallpaper images - public read
+    match /wallpapers/{allPaths=**} {
+      allow read: if true;
+      allow write: if false; // Only admin uploads
+    }
+    
+    // Category images - public read
+    match /categories/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+    
+    // Thumbnails - public read
+    match /thumbnails/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}

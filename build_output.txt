@@ -1,0 +1,21 @@
+﻿.\gradlew.bat : WARNING: A restricted method in java.lang.System has been calle
+d
+строка:1 знак:28
++ ... virex wall"; .\gradlew.bat assembleDebug --console=plain 2>&1 | Out-F ...
++                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: A rest...has been called 
+   :String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: java.lang.System::load has been called by net.rubygrapefruit.platform.
+internal.NativeLibraryLoader in an unnamed module (file:/C:/Users/user/.gradle/
+wrapper/dists/gradle-8.11.1-bin/bpt9gzteqjrbo1mjrsomdt32c/gradle-8.11.1/lib/nat
+ive-platform-0.22-milestone-26.jar)
+WARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers 
+in this module
+WARNING: Restricted methods will be blocked in a future release unless native a
+ccess is enabled
+
+Starting a Gradle Daemon, 2 busy Daemons could not be reused, use --status for details
+Calculating task graph as no cached configuration is available for tasks: assembleDebug
+Configuration cache entry stored.

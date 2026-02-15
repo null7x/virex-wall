@@ -1,0 +1,14 @@
+{
+    "recommendations": [
+        "mathiasfrohlich.kotlin",
+        "fwcd.kotlin",
+        "vscjava.vscode-gradle",
+        "richardwillis.vscode-gradle-extension-pack",
+        "naco-siren.gradle-language",
+        "esbenp.prettier-vscode",
+        "redhat.vscode-xml",
+        "ms-vscode.vscode-typescript-next",
+        "EditorConfig.EditorConfig"
+    ],
+    "unwantedRecommendations": []
+}

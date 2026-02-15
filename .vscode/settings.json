@@ -1,0 +1,43 @@
+{
+    // Kotlin settings
+    "kotlin.languageServer.enabled": true,
+    "kotlin.languageServer.path": "",
+    "kotlin.debugAdapter.enabled": true,
+    "kotlin.completion.snippets.enabled": true,
+    "kotlin.diagnostics.debounceTime": 250,
+    // Gradle settings
+    "gradle.nestedProjects": true,
+    "gradle.reuseTerminals": "all",
+    "gradle.showStoppedDaemons": true,
+    "gradle.debug": false,
+    // Editor settings
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false,
+    // File associations
+    "files.associations": {
+        "*.gradle.kts": "kotlin",
+        "*.kts": "kotlin",
+        "gradlew": "shellscript"
+    },
+    // Exclude build directories
+    "files.exclude": {
+        "**/.gradle": true,
+        "**/build": true,
+        "**/.idea": true,
+        "**/*.iml": true
+    },
+    // Search exclude
+    "search.exclude": {
+        "**/build": true,
+        "**/.gradle": true,
+        "**/node_modules": true
+    },
+    // Terminal settings (Windows)
+    "terminal.integrated.defaultProfile.windows": "Command Prompt",
+    // Android SDK path - UPDATE THIS PATH
+    "android.sdk.path": "C:\\Users\\YOUR_USERNAME\\AppData\\Local\\Android\\Sdk",
+    // Java settings
+    "java.configuration.updateBuildConfiguration": "automatic"
+}

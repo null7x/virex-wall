@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug APK",
+            "type": "kotlin",
+            "request": "launch",
+            "mainClass": "com.virex.wallpapers.MainActivity",
+            "projectRoot": "${workspaceFolder}",
+            "preLaunchTask": "Build Debug APK"
+        }
+    ],
+    "compounds": []
+}

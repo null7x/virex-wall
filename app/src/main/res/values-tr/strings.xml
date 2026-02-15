@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VIREX Duvar Kağıtları</string>
+    <string name="app_name_full">VIREX Duvar Kağıtları – Saf Siyah AMOLED</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Ana Sayfa</string>
+    <string name="nav_categories">Kategoriler</string>
+    <string name="nav_favorites">Favoriler</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- Home Screen -->
+    <string name="featured">Öne Çıkanlar</string>
+    <string name="trending">Trend</string>
+    <string name="new_wallpapers">Yeni</string>
+    <string name="all_wallpapers">Tüm Duvar Kağıtları</string>
+
+    <!-- Preview Screen -->
+    <string name="set_wallpaper">Duvar Kağıdı Ayarla</string>
+    <string name="set_home_screen">Ana Ekran</string>
+    <string name="set_lock_screen">Kilit Ekranı</string>
+    <string name="set_both">Her İkisi</string>
+    <string name="download">İndir</string>
+    <string name="add_to_favorites">Favorilere Ekle</string>
+    <string name="remove_from_favorites">Favorilerden Kaldır</string>
+    <string name="wallpaper_set_success">Duvar kağıdı başarıyla ayarlandı!</string>
+    <string name="wallpaper_set_error">Duvar kağıdı ayarlanamadı</string>
+    <string name="download_success">Duvar kağıdı başarıyla indirildi!</string>
+    <string name="download_error">Duvar kağıdı indirilemedi</string>
+
+    <!-- Categories -->
+    <string name="category_abstract">Soyut</string>
+    <string name="category_nature">Doğa</string>
+    <string name="category_space">Uzay</string>
+    <string name="category_minimal">Minimal</string>
+    <string name="category_geometric">Geometrik</string>
+    <string name="category_gradient">Gradyan</string>
+    <string name="category_dark">Karanlık</string>
+    <string name="category_neon">Neon</string>
+
+    <!-- Settings -->
+    <string name="settings_pro">VIREX PRO</string>
+    <string name="settings_pro_description">Tüm duvar kağıtlarını, çevrimdışı önbelleği ve premium özellikleri açın</string>
+    <string name="settings_upgrade_pro">PRO\'ya Yükselt</string>
+    <string name="settings_restore_purchase">Satın Alma Geri Yükle</string>
+    <string name="settings_cache">Önbellek</string>
+    <string name="settings_clear_cache">Önbelleği Temizle</string>
+    <string name="settings_cache_cleared">Önbellek temizlendi</string>
+    <string name="settings_about">Hakkında</string>
+    <string name="settings_version">Sürüm</string>
+    <string name="settings_privacy_policy">Gizlilik Politikası</string>
+    <string name="settings_terms_of_service">Kullanım Koşulları</string>
+    <string name="settings_rate_app">Uygulamayı Oyla</string>
+    <string name="settings_share_app">Uygulamayı Paylaş</string>
+    <string name="settings_language">Dil</string>
+    <string name="settings_language_subtitle">Uygulama dilini seçin</string>
+    <string name="settings_language_system">Sistem</string>
+
+    <!-- Pro Features -->
+    <string name="pro_feature_unlimited">Sınırsız Duvar Kağıtları</string>
+    <string name="pro_feature_offline">Çevrimdışı Önbellek</string>
+    <string name="pro_feature_exclusive">Özel Koleksiyonlar</string>
+    <string name="pro_feature_no_watermark">Filigran Yok</string>
+    <string name="pro_feature_early_access">Erken Erişim</string>
+    <string name="pro_unlock_price">$2.99</string>
+    <string name="pro_one_time_purchase">Tek seferlik satın alma</string>
+    <string name="pro_already_unlocked">Zaten PRO\'nuz var!</string>
+    <string name="pro_purchase_success">VIREX PRO\'ya hoş geldiniz!</string>
+    <string name="pro_purchase_error">Satın alma başarısız. Lütfen tekrar deneyin.</string>
+    <string name="pro_restore_success">Satın alma başarıyla geri yüklendi!</string>
+    <string name="pro_restore_not_found">Önceki satın alma bulunamadı</string>
+
+    <!-- Errors -->
+    <string name="error_no_internet">İnternet bağlantısı yok</string>
+    <string name="error_loading">Yüklenemedi. Yeniden denemek için dokunun.</string>
+    <string name="error_generic">Bir şeyler yanlış gitti</string>
+
+    <!-- Common -->
+    <string name="loading">Yükleniyor...</string>
+    <string name="retry">Tekrar Dene</string>
+    <string name="cancel">İptal</string>
+    <string name="ok">Tamam</string>
+    <string name="pro">PRO</string>
+    <string name="free">ÜCRETSİZ</string>
+
+    <!-- AI Generator -->
+    <string name="nav_generator">AI Üretici</string>
+    <string name="generator_generate">Oluştur</string>
+    <string name="generator_randomize">Rastgele</string>
+    <string name="generator_save">Kaydet</string>
+    <string name="generator_style">Stil</string>
+    <string name="generator_accent_color">Vurgu Rengi</string>
+    <string name="generator_intensity">Yoğunluk</string>
+    <string name="generator_minimal">Minimal</string>
+    <string name="generator_complex">Karmaşık</string>
+    <string name="generator_preview">Önizleme</string>
+    <string name="generator_placeholder">Benzersiz bir AMOLED duvar kağıdı oluşturmak için Oluştur\'a dokunun</string>
+    <string name="generator_generating">Oluşturuluyor...</string>
+    <string name="generator_pro_required_title">PRO Özelliği</string>
+    <string name="generator_pro_required_description">AI Duvar Kağıdı Üretici yalnızca VIREX PRO kullanıcıları için kullanılabilir. Sınırsız özel AMOLED duvar kağıtları oluşturun!</string>
+    <string name="generator_unlock_pro">PRO\'yu Aç</string>
+
+    <!-- Style Descriptions -->
+    <string name="style_geometric_lines_desc">Parlayan aksanlarla keskin açılı çizgiler</string>
+    <string name="style_neon_glow_desc">Saf siyah üzerinde yumuşak parlayan küreler</string>
+    <string name="style_particle_field_desc">İnce bağlantılarla dağınık parçacıklar</string>
+    <string name="style_abstract_waves_desc">Gradyan efektlerle akan dalga desenleri</string>
+    <string name="style_dark_gradient_desc">Köşelerden yumuşak karanlık gradyanlar</string>
+    <string name="style_constellation_desc">Takımyıldız bağlantılarıyla yıldız alanı</string>
+    <string name="style_minimal_shapes_desc">Siyah üzerinde temiz geometrik şekiller</string>
+    <string name="style_circuit_board_desc">Teknoloji ilhamlı devre desenleri</string>
+    <string name="style_aurora_desc">Kuzey ışıkları ilhamlı gradyan bantlar</string>
+    <string name="style_fractal_noise_desc">Parlayan noktalarla organik gürültü desenleri</string>
+
+    <!-- Widget -->
+    <string name="widget_name">VIREX Hızlı Duvar Kağıdı</string>
+    <string name="widget_description">Rastgele veya favori duvar kağıtlarını ayarlamak için hızlı erişim</string>
+    <string name="widget_random_wallpaper">Rastgele AMOLED duvar kağıdı ayarla</string>
+    <string name="widget_favorite_wallpaper">Rastgele favori duvar kağıdı ayarla</string>
+
+    <!-- Language Names -->
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_hindi">हिन्दी</string>
+</resources>

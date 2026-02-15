@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VIREX Wallpapers</string>
+    <string name="app_name_full">VIREX Wallpapers – Pure Black AMOLED</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_categories">Categories</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Home Screen -->
+    <string name="featured">Featured</string>
+    <string name="trending">Trending</string>
+    <string name="new_wallpapers">New</string>
+    <string name="all_wallpapers">All Wallpapers</string>
+
+    <!-- Preview Screen -->
+    <string name="set_wallpaper">Set Wallpaper</string>
+    <string name="set_home_screen">Home Screen</string>
+    <string name="set_lock_screen">Lock Screen</string>
+    <string name="set_both">Both</string>
+    <string name="download">Download</string>
+    <string name="add_to_favorites">Add to Favorites</string>
+    <string name="remove_from_favorites">Remove from Favorites</string>
+    <string name="wallpaper_set_success">Wallpaper set successfully!</string>
+    <string name="wallpaper_set_error">Failed to set wallpaper</string>
+    <string name="download_success">Wallpaper downloaded successfully!</string>
+    <string name="download_error">Failed to download wallpaper</string>
+
+    <!-- Categories -->
+    <string name="category_abstract">Abstract</string>
+    <string name="category_nature">Nature</string>
+    <string name="category_space">Space</string>
+    <string name="category_minimal">Minimal</string>
+    <string name="category_geometric">Geometric</string>
+    <string name="category_gradient">Gradient</string>
+    <string name="category_dark">Dark</string>
+    <string name="category_neon">Neon</string>
+
+    <!-- Settings -->
+    <string name="settings_pro">VIREX PRO</string>
+    <string name="settings_pro_description">Unlock all wallpapers, offline cache, and premium features</string>
+    <string name="settings_upgrade_pro">Upgrade to PRO</string>
+    <string name="settings_restore_purchase">Restore Purchase</string>
+    <string name="settings_cache">Cache</string>
+    <string name="settings_clear_cache">Clear Cache</string>
+    <string name="settings_cache_cleared">Cache cleared</string>
+    <string name="settings_about">About</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_privacy_policy">Privacy Policy</string>
+    <string name="settings_terms_of_service">Terms of Service</string>
+    <string name="settings_rate_app">Rate App</string>
+    <string name="settings_share_app">Share App</string>
+    <string name="settings_language">Language</string>
+    <string name="settings_language_subtitle">Choose app language</string>
+    <string name="settings_language_system">System</string>
+
+    <!-- Pro Features -->
+    <string name="pro_feature_unlimited">Unlimited Wallpapers</string>
+    <string name="pro_feature_offline">Offline Cache</string>
+    <string name="pro_feature_exclusive">Exclusive Collections</string>
+    <string name="pro_feature_no_watermark">No Watermarks</string>
+    <string name="pro_feature_early_access">Early Access</string>
+    <string name="pro_unlock_price">$2.99</string>
+    <string name="pro_one_time_purchase">One-time purchase</string>
+    <string name="pro_already_unlocked">You already have PRO!</string>
+    <string name="pro_purchase_success">Welcome to VIREX PRO!</string>
+    <string name="pro_purchase_error">Purchase failed. Please try again.</string>
+    <string name="pro_restore_success">Purchase restored successfully!</string>
+    <string name="pro_restore_not_found">No previous purchase found</string>
+
+    <!-- Errors -->
+    <string name="error_no_internet">No internet connection</string>
+    <string name="error_loading">Failed to load. Tap to retry.</string>
+    <string name="error_generic">Something went wrong</string>
+
+    <!-- Common -->
+    <string name="loading">Loading...</string>
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="pro">PRO</string>
+    <string name="free">FREE</string>
+
+    <!-- AI Generator -->
+    <string name="nav_generator">AI Generator</string>
+    <string name="generator_generate">Generate</string>
+    <string name="generator_randomize">Randomize</string>
+    <string name="generator_save">Save</string>
+    <string name="generator_style">Style</string>
+    <string name="generator_accent_color">Accent Color</string>
+    <string name="generator_intensity">Intensity</string>
+    <string name="generator_minimal">Minimal</string>
+    <string name="generator_complex">Complex</string>
+    <string name="generator_preview">Preview</string>
+    <string name="generator_placeholder">Tap Generate to create a unique AMOLED wallpaper</string>
+    <string name="generator_generating">Generating...</string>
+    <string name="generator_pro_required_title">PRO Feature</string>
+    <string name="generator_pro_required_description">AI Wallpaper Generator is available exclusively for VIREX PRO users. Create unlimited custom AMOLED wallpapers!</string>
+    <string name="generator_unlock_pro">Unlock PRO</string>
+
+    <!-- Style Descriptions -->
+    <string name="style_geometric_lines_desc">Sharp angular lines with glowing accents</string>
+    <string name="style_neon_glow_desc">Soft glowing orbs on pure black</string>
+    <string name="style_particle_field_desc">Scattered particles with subtle connections</string>
+    <string name="style_abstract_waves_desc">Flowing wave patterns with gradient effects</string>
+    <string name="style_dark_gradient_desc">Smooth dark gradients from corners</string>
+    <string name="style_constellation_desc">Star field with constellation connections</string>
+    <string name="style_minimal_shapes_desc">Clean geometric shapes on black</string>
+    <string name="style_circuit_board_desc">Tech-inspired circuit patterns</string>
+    <string name="style_aurora_desc">Northern lights inspired gradient bands</string>
+    <string name="style_fractal_noise_desc">Organic noise patterns with glow spots</string>
+
+    <!-- Widget -->
+    <string name="widget_name">VIREX Quick Wallpaper</string>
+    <string name="widget_description">Quick access to set random or favorite wallpapers</string>
+    <string name="widget_random_wallpaper">Set random AMOLED wallpaper</string>
+    <string name="widget_favorite_wallpaper">Set random favorite wallpaper</string>
+
+    <!-- Language Names -->
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_hindi">हिन्दी</string>
+</resources>

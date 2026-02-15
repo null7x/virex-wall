@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VIREX वॉलपेपर</string>
+    <string name="app_name_full">VIREX वॉलपेपर – शुद्ध काला AMOLED</string>
+
+    <!-- Navigation -->
+    <string name="nav_home">होम</string>
+    <string name="nav_categories">श्रेणियाँ</string>
+    <string name="nav_favorites">पसंदीदा</string>
+    <string name="nav_settings">सेटिंग्स</string>
+
+    <!-- Home Screen -->
+    <string name="featured">फ़ीचर्ड</string>
+    <string name="trending">ट्रेंडिंग</string>
+    <string name="new_wallpapers">नए</string>
+    <string name="all_wallpapers">सभी वॉलपेपर</string>
+
+    <!-- Preview Screen -->
+    <string name="set_wallpaper">वॉलपेपर सेट करें</string>
+    <string name="set_home_screen">होम स्क्रीन</string>
+    <string name="set_lock_screen">लॉक स्क्रीन</string>
+    <string name="set_both">दोनों</string>
+    <string name="download">डाउनलोड</string>
+    <string name="add_to_favorites">पसंदीदा में जोड़ें</string>
+    <string name="remove_from_favorites">पसंदीदा से हटाएं</string>
+    <string name="wallpaper_set_success">वॉलपेपर सफलतापूर्वक सेट हो गया!</string>
+    <string name="wallpaper_set_error">वॉलपेपर सेट करने में विफल</string>
+    <string name="download_success">वॉलपेपर सफलतापूर्वक डाउनलोड हो गया!</string>
+    <string name="download_error">वॉलपेपर डाउनलोड करने में विफल</string>
+
+    <!-- Categories -->
+    <string name="category_abstract">एब्सट्रैक्ट</string>
+    <string name="category_nature">प्रकृति</string>
+    <string name="category_space">अंतरिक्ष</string>
+    <string name="category_minimal">मिनिमल</string>
+    <string name="category_geometric">ज्यामितीय</string>
+    <string name="category_gradient">ग्रेडिएंट</string>
+    <string name="category_dark">डार्क</string>
+    <string name="category_neon">नियॉन</string>
+
+    <!-- Settings -->
+    <string name="settings_pro">VIREX PRO</string>
+    <string name="settings_pro_description">सभी वॉलपेपर, ऑफलाइन कैश और प्रीमियम सुविधाएं अनलॉक करें</string>
+    <string name="settings_upgrade_pro">PRO में अपग्रेड करें</string>
+    <string name="settings_restore_purchase">खरीदारी पुनर्स्थापित करें</string>
+    <string name="settings_cache">कैश</string>
+    <string name="settings_clear_cache">कैश साफ़ करें</string>
+    <string name="settings_cache_cleared">कैश साफ़ हो गया</string>
+    <string name="settings_about">के बारे में</string>
+    <string name="settings_version">संस्करण</string>
+    <string name="settings_privacy_policy">गोपनीयता नीति</string>
+    <string name="settings_terms_of_service">सेवा की शर्तें</string>
+    <string name="settings_rate_app">ऐप रेट करें</string>
+    <string name="settings_share_app">ऐप शेयर करें</string>
+    <string name="settings_language">भाषा</string>
+    <string name="settings_language_subtitle">ऐप भाषा चुनें</string>
+    <string name="settings_language_system">सिस्टम</string>
+
+    <!-- Pro Features -->
+    <string name="pro_feature_unlimited">असीमित वॉलपेपर</string>
+    <string name="pro_feature_offline">ऑफलाइन कैश</string>
+    <string name="pro_feature_exclusive">विशेष संग्रह</string>
+    <string name="pro_feature_no_watermark">कोई वॉटरमार्क नहीं</string>
+    <string name="pro_feature_early_access">शीघ्र पहुंच</string>
+    <string name="pro_unlock_price">$2.99</string>
+    <string name="pro_one_time_purchase">एकबारगी खरीदारी</string>
+    <string name="pro_already_unlocked">आपके पास पहले से PRO है!</string>
+    <string name="pro_purchase_success">VIREX PRO में आपका स्वागत है!</string>
+    <string name="pro_purchase_error">खरीदारी विफल। कृपया पुनः प्रयास करें।</string>
+    <string name="pro_restore_success">खरीदारी सफलतापूर्वक पुनर्स्थापित!</string>
+    <string name="pro_restore_not_found">कोई पिछली खरीदारी नहीं मिली</string>
+
+    <!-- Errors -->
+    <string name="error_no_internet">इंटरनेट कनेक्शन नहीं</string>
+    <string name="error_loading">लोड करने में विफल। पुनः प्रयास के लिए टैप करें।</string>
+    <string name="error_generic">कुछ गलत हो गया</string>
+
+    <!-- Common -->
+    <string name="loading">लोड हो रहा है...</string>
+    <string name="retry">पुनः प्रयास</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="ok">ठीक है</string>
+    <string name="pro">PRO</string>
+    <string name="free">मुफ्त</string>
+
+    <!-- AI Generator -->
+    <string name="nav_generator">AI जनरेटर</string>
+    <string name="generator_generate">बनाएं</string>
+    <string name="generator_randomize">रैंडम</string>
+    <string name="generator_save">सहेजें</string>
+    <string name="generator_style">स्टाइल</string>
+    <string name="generator_accent_color">एक्सेंट रंग</string>
+    <string name="generator_intensity">तीव्रता</string>
+    <string name="generator_minimal">न्यूनतम</string>
+    <string name="generator_complex">जटिल</string>
+    <string name="generator_preview">पूर्वावलोकन</string>
+    <string name="generator_placeholder">एक अनोखा AMOLED वॉलपेपर बनाने के लिए बनाएं पर टैप करें</string>
+    <string name="generator_generating">बना रहा है...</string>
+    <string name="generator_pro_required_title">PRO सुविधा</string>
+    <string name="generator_pro_required_description">AI वॉलपेपर जनरेटर विशेष रूप से VIREX PRO उपयोगकर्ताओं के लिए उपलब्ध है। असीमित कस्टम AMOLED वॉलपेपर बनाएं!</string>
+    <string name="generator_unlock_pro">PRO अनलॉक करें</string>
+
+    <!-- Style Descriptions -->
+    <string name="style_geometric_lines_desc">चमकदार एक्सेंट के साथ तेज कोणीय रेखाएं</string>
+    <string name="style_neon_glow_desc">शुद्ध काले पर नरम चमकते गोले</string>
+    <string name="style_particle_field_desc">सूक्ष्म कनेक्शन के साथ बिखरे कण</string>
+    <string name="style_abstract_waves_desc">ग्रेडिएंट प्रभावों के साथ बहती लहर पैटर्न</string>
+    <string name="style_dark_gradient_desc">कोनों से चिकने गहरे ग्रेडिएंट</string>
+    <string name="style_constellation_desc">तारामंडल कनेक्शन के साथ तारा क्षेत्र</string>
+    <string name="style_minimal_shapes_desc">काले पर साफ ज्यामितीय आकृतियां</string>
+    <string name="style_circuit_board_desc">टेक-प्रेरित सर्किट पैटर्न</string>
+    <string name="style_aurora_desc">उत्तरी लाइट्स से प्रेरित ग्रेडिएंट बैंड</string>
+    <string name="style_fractal_noise_desc">चमकीले स्पॉट के साथ जैविक शोर पैटर्न</string>
+
+    <!-- Widget -->
+    <string name="widget_name">VIREX त्वरित वॉलपेपर</string>
+    <string name="widget_description">रैंडम या पसंदीदा वॉलपेपर सेट करने के लिए त्वरित पहुंच</string>
+    <string name="widget_random_wallpaper">रैंडम AMOLED वॉलपेपर सेट करें</string>
+    <string name="widget_favorite_wallpaper">रैंडम पसंदीदा वॉलपेपर सेट करें</string>
+
+    <!-- Language Names -->
+    <string name="language_english">English</string>
+    <string name="language_russian">Русский</string>
+    <string name="language_turkish">Türkçe</string>
+    <string name="language_hindi">हिन्दी</string>
+</resources>

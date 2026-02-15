@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- 
+    VIREX Widget 2x1 Layout
+    Two-button widget: Random + Favorite wallpaper
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:padding="4dp" android:background="@drawable/widget_background">
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="horizontal" android:gravity="center" android:padding="8dp">
+
+        <!-- Random Wallpaper Button -->
+        <LinearLayout android:id="@+id/btn_random_wallpaper" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@drawable/widget_button_background" android:padding="8dp" android:layout_marginEnd="4dp">
+
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_widget_shuffle" android:contentDescription="@string/widget_random_wallpaper" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Random" android:textColor="#FFFFFF" android:textSize="10sp" android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+        <!-- Logo (clickable to open app) -->
+        <TextView android:id="@+id/widget_logo" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="V" android:textColor="#00D4FF" android:textSize="24sp" android:textStyle="bold" android:fontFamily="sans-serif-medium" android:paddingHorizontal="8dp" />
+
+        <!-- Favorite Wallpaper Button -->
+        <LinearLayout android:id="@+id/btn_favorite_wallpaper" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:orientation="vertical" android:gravity="center" android:background="@drawable/widget_button_background" android:padding="8dp" android:layout_marginStart="4dp">
+
+            <ImageView android:layout_width="24dp" android:layout_height="24dp" android:src="@drawable/ic_widget_favorite" android:contentDescription="@string/widget_favorite_wallpaper" />
+
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Favorite" android:textColor="#FFFFFF" android:textSize="10sp" android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

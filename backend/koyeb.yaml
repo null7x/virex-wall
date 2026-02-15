@@ -1,0 +1,46 @@
+name: virex-backend
+type: web
+
+# GitHub deployment settings
+github:
+  repo: your-username/virex-backend
+  branch: main
+  auto_deploy: true
+
+# Build settings
+build:
+  type: dockerfile
+  dockerfile: Dockerfile
+
+# Service configuration
+service:
+  port: 3000
+  routes:
+    - path: /
+      port: 3000
+
+# Environment variables
+env:
+  - name: NODE_ENV
+    value: production
+  - name: PEXELS_API_KEY
+    secret: true
+  - name: UNSPLASH_ACCESS_KEY
+    secret: true
+  - name: SELF_PING_URL
+    value: https://virex-backend.koyeb.app
+
+# Health check
+health_check:
+  path: /health
+  port: 3000
+  interval: 30
+  timeout: 5
+  healthy_threshold: 2
+  unhealthy_threshold: 3
+
+# Resources (free tier)
+resources:
+  instance: nano
+  regions:
+    - fra

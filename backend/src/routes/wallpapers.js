@@ -34,8 +34,14 @@ router.get('/search', async (req, res) => {
 });
 
 // GET /wallpapers/categories
-router.get('/categories', (req, res) => {
-  res.json({ categories: getCategories() });
+router.get('/categories', async (req, res) => {
+  try {
+    const categories = await getCategories();
+    res.json({ categories });
+  } catch (error) {
+    console.error('Categories error:', error.message);
+    res.status(500).json({ error: 'Failed to fetch categories' });
+  }
 });
 
 // GET /wallpapers/category/:name

@@ -5,27 +5,60 @@ import { fetchRedditTrending, fetchRedditSearch } from './redditService.js';
 import { getFallbackTrending, getFallbackSearch, getFallbackByCategory } from './fallbackService.js';
 import cache from '../cache/memoryCache.js';
 
-// Category mappings for search queries with estimated counts
+// Category mappings for search queries
 const CATEGORIES = {
-  nature: { name: 'Nature', query: 'nature landscape forest', coverUrl: 'https://picsum.photos/id/10/400/600', count: 500 },
-  cars: { name: 'Cars', query: 'cars automotive supercar', coverUrl: 'https://picsum.photos/id/111/400/600', count: 200 },
-  amoled: { name: 'AMOLED', query: 'dark black minimal amoled', coverUrl: 'https://picsum.photos/id/36/400/600', count: 350 },
-  space: { name: 'Space', query: 'space galaxy nebula stars', coverUrl: 'https://picsum.photos/id/96/400/600', count: 280 },
-  cyberpunk: { name: 'Cyberpunk', query: 'cyberpunk neon city futuristic', coverUrl: 'https://picsum.photos/id/274/400/600', count: 150 },
-  minimal: { name: 'Minimal', query: 'minimal abstract geometric', coverUrl: 'https://picsum.photos/id/35/400/600', count: 320 },
-  anime: { name: 'Anime', query: 'anime illustration art', coverUrl: 'https://picsum.photos/id/21/400/600', count: 400 },
-  city: { name: 'City', query: 'city urban architecture skyline', coverUrl: 'https://picsum.photos/id/274/400/600', count: 380 },
-  ocean: { name: 'Ocean', query: 'ocean sea beach water waves', coverUrl: 'https://picsum.photos/id/14/400/600', count: 250 },
-  fantasy: { name: 'Fantasy', query: 'fantasy dragon magical mythical', coverUrl: 'https://picsum.photos/id/167/400/600', count: 180 }
+  nature: { name: 'Nature', query: 'nature landscape forest', coverUrl: 'https://picsum.photos/id/10/400/600' },
+  cars: { name: 'Cars', query: 'cars automotive supercar', coverUrl: 'https://picsum.photos/id/111/400/600' },
+  amoled: { name: 'AMOLED', query: 'dark black minimal amoled', coverUrl: 'https://picsum.photos/id/36/400/600' },
+  space: { name: 'Space', query: 'space galaxy nebula stars', coverUrl: 'https://picsum.photos/id/96/400/600' },
+  cyberpunk: { name: 'Cyberpunk', query: 'cyberpunk neon city futuristic', coverUrl: 'https://picsum.photos/id/274/400/600' },
+  minimal: { name: 'Minimal', query: 'minimal abstract geometric', coverUrl: 'https://picsum.photos/id/35/400/600' },
+  anime: { name: 'Anime', query: 'anime illustration art', coverUrl: 'https://picsum.photos/id/21/400/600' },
+  city: { name: 'City', query: 'city urban architecture skyline', coverUrl: 'https://picsum.photos/id/274/400/600' },
+  ocean: { name: 'Ocean', query: 'ocean sea beach water waves', coverUrl: 'https://picsum.photos/id/14/400/600' },
+  fantasy: { name: 'Fantasy', query: 'fantasy dragon magical mythical', coverUrl: 'https://picsum.photos/id/167/400/600' }
 };
 
-export function getCategories() {
-  return Object.entries(CATEGORIES).map(([id, data]) => ({
+// Cache for category counts
+const categoryCounts = new Map();
+
+// Get categories with real wallpaper counts
+export async function getCategories() {
+  const cacheKey = 'categories_with_counts';
+  const cached = cache.get(cacheKey);
+  if (cached) return cached;
+
+  // Fetch counts in parallel for all categories
+  const entries = Object.entries(CATEGORIES);
+  const countPromises = entries.map(async ([id, data]) => {
+    // Check if we have cached count for this category
+    if (categoryCounts.has(id)) {
+      return { id, count: categoryCounts.get(id) };
+    }
+    
+    try {
+      // Quick fetch to get count (only need 1 page)
+      const wallpapers = await searchWallpapers(data.query, 1, 50);
+      const count = wallpapers.length;
+      categoryCounts.set(id, count);
+      return { id, count };
+    } catch {
+      return { id, count: 0 };
+    }
+  });
+
+  const counts = await Promise.all(countPromises);
+  const countMap = Object.fromEntries(counts.map(c => [c.id, c.count]));
+
+  const result = entries.map(([id, data]) => ({
     id,
     name: data.name,
     coverUrl: proxyUrl(data.coverUrl),
-    count: data.count
+    count: countMap[id] || 0
   }));
+
+  cache.set(cacheKey, result, 300); // Cache for 5 minutes
+  return result;
 }
 
 // Backend base URL for image proxy

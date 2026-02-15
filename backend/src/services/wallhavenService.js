@@ -13,9 +13,14 @@ function transformWallpaper(wallpaper) {
   return {
     id: wallpaper.id,
     title: 'Wallhaven Wallpaper',
+    url: wallpaper.path,
+    thumbnail_url: wallpaper.thumbs?.small || wallpaper.thumbs?.original,
     preview_url: wallpaper.thumbs?.small || wallpaper.thumbs?.original,
     full_url: wallpaper.path,
-    photographer: 'Wallhaven'
+    width: wallpaper.dimension_x || 1080,
+    height: wallpaper.dimension_y || 1920,
+    photographer: 'Wallhaven',
+    tags: wallpaper.tags?.map(t => t.name) || []
   };
 }
 

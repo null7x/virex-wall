@@ -17,9 +17,14 @@ function transformPhoto(photo) {
   return {
     id: photo.id,
     title: photo.alt || 'Pexels Wallpaper',
+    url: photo.src.original,
+    thumbnail_url: photo.src.medium,
     preview_url: photo.src.medium,
     full_url: photo.src.original,
-    photographer: photo.photographer
+    width: photo.width || 1080,
+    height: photo.height || 1920,
+    photographer: photo.photographer,
+    tags: []
   };
 }
 

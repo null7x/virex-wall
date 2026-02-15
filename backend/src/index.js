@@ -46,6 +46,22 @@ app.get('/ping', (req, res) => {
   res.json({ pong: true });
 });
 
+// Root endpoint - API info
+app.get('/', (req, res) => {
+  res.json({
+    name: 'VIREX Wallpapers API',
+    version: '1.0.0',
+    status: 'running',
+    endpoints: {
+      health: '/health',
+      trending: '/wallpapers/trending',
+      search: '/wallpapers/search?q=query',
+      categories: '/wallpapers/categories',
+      category: '/wallpapers/category/:name'
+    }
+  });
+});
+
 // API routes
 app.use('/wallpapers', wallpapersRouter);
 

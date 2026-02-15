@@ -17,9 +17,14 @@ function transformPhoto(photo) {
   return {
     id: photo.id,
     title: photo.description || photo.alt_description || 'Unsplash Wallpaper',
+    url: photo.urls.full,
+    thumbnail_url: photo.urls.small,
     preview_url: photo.urls.small,
     full_url: photo.urls.full,
-    photographer: photo.user?.name || 'Unknown'
+    width: photo.width || 1080,
+    height: photo.height || 1920,
+    photographer: photo.user?.name || 'Unknown',
+    tags: photo.tags?.map(t => t.title) || []
   };
 }
 

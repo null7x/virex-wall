@@ -9,18 +9,23 @@ import com.virex.wallpapers.data.model.SyncCategory
 import com.virex.wallpapers.data.model.UiState
 import com.virex.wallpapers.data.model.Wallpaper
 import com.virex.wallpapers.data.remote.FirebaseDataSource
+import com.virex.wallpapers.data.remote.api.VirexBackendApi
+import com.virex.wallpapers.data.remote.model.VirexWallpaper
 import javax.inject.Inject
+import javax.inject.Named
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
  * Wallpaper Repository
  *
- * Single source of truth for wallpaper data. Uses Wallhaven sync as primary data source. VPN
- * recommended for Russia.
+ * Single source of truth for wallpaper data. 
+ * PRIMARY: VIREX Backend (works in Russia without VPN)
+ * FALLBACK: Local synced data
  */
 @Singleton
 class WallpaperRepository
@@ -29,160 +34,242 @@ constructor(
         private val firebaseDataSource: FirebaseDataSource,
         private val wallpaperDao: WallpaperDao,
         private val syncedWallpaperDao: SyncedWallpaperDao,
-        private val preferencesDataStore: PreferencesDataStore
+        private val preferencesDataStore: PreferencesDataStore,
+        @Named("virex_backend") private val virexBackendApi: VirexBackendApi
 ) {
+    
+    companion object {
+        private const val TAG = "WallpaperRepo"
+    }
+    
+    /** Convert VirexWallpaper to Wallpaper */
+    private fun VirexWallpaper.toWallpaper(): Wallpaper {
+        return Wallpaper(
+            id = id,
+            title = title,
+            thumbnailUrl = thumbnailUrl,
+            fullUrl = url,
+            categoryId = "general",
+            categoryName = "General",
+            tags = tags ?: emptyList(),
+            width = width,
+            height = height,
+            likes = 0,
+            downloads = 0,
+            source = source
+        )
+    }
 
     // ==================== WALLPAPERS ====================
 
     /**
-     * Get all wallpapers from synced data (Wallhaven). Reactive - updates when wallpapers change in
-     * database.
+     * Get all wallpapers from VIREX Backend (PRIMARY)
+     * Falls back to local synced data if backend unavailable
      */
-    fun getAllWallpapers(): Flow<UiState<List<Wallpaper>>> =
-            syncedWallpaperDao
-                    .getAllSyncedWallpapers()
-                    .map { syncedWallpapers ->
-                        val wallpapers = syncedWallpapers.map { it.toWallpaper() }
-                        android.util.Log.d(
-                                "WallpaperRepo",
-                                "getAllWallpapers: ${wallpapers.size} wallpapers"
-                        )
-                        if (wallpapers.isNotEmpty()) {
-                            UiState.Success(wallpapers)
-                        } else {
-                            UiState.Empty
-                        }
-                    }
-                    .catch { e ->
-                        android.util.Log.e("WallpaperRepo", "getAllWallpapers error", e)
-                        emit(UiState.Error("Не удалось загрузить обои. Проверьте подключение"))
-                    }
-
-    /** Get wallpapers by category. Reactive - updates when wallpapers change in database. */
-    fun getWallpapersByCategory(categoryId: String): Flow<UiState<List<Wallpaper>>> {
-        android.util.Log.d("WallpaperRepo", "getWallpapersByCategory($categoryId)")
-
-        val syncCategory =
-                try {
-                    SyncCategory.valueOf(categoryId.uppercase())
-                } catch (_: Exception) {
-                    SyncCategory.values().find {
-                        it.name.equals(categoryId, ignoreCase = true) ||
-                                it.displayName.equals(categoryId, ignoreCase = true)
-                    }
-                }
-
-        return if (syncCategory != null) {
-            syncedWallpaperDao
-                    .getWallpapersByCategory(syncCategory)
-                    .map { syncedList ->
-                        val wallpapers = syncedList.map { it.toWallpaper() }
-                        android.util.Log.d(
-                                "WallpaperRepo",
-                                "Category $categoryId: ${wallpapers.size} wallpapers"
-                        )
-                        if (wallpapers.isNotEmpty()) {
-                            UiState.Success(wallpapers)
-                        } else {
-                            UiState.Empty
-                        }
-                    }
-                    .catch { e ->
-                        android.util.Log.e("WallpaperRepo", "getWallpapersByCategory error", e)
-                        emit(UiState.Error("Не удалось загрузить обои"))
-                    }
+    fun getAllWallpapers(): Flow<UiState<List<Wallpaper>>> = flow {
+        emit(UiState.Loading)
+        
+        try {
+            // PRIMARY: Load from VIREX Backend
+            android.util.Log.d(TAG, "Loading wallpapers from VIREX Backend...")
+            val response = virexBackendApi.getTrending(page = 1, perPage = 100)
+            
+            if (response.wallpapers.isNotEmpty()) {
+                val wallpapers = response.wallpapers.map { it.toWallpaper() }
+                android.util.Log.d(TAG, "Backend returned ${wallpapers.size} wallpapers")
+                emit(UiState.Success(wallpapers))
+            } else {
+                // Fallback to local
+                android.util.Log.w(TAG, "Backend empty, falling back to local")
+                emitLocalWallpapers()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "Backend error: ${e.message}, falling back to local", e)
+            emitLocalWallpapers()
+        }
+    }.catch { e ->
+        android.util.Log.e(TAG, "getAllWallpapers error", e)
+        emit(UiState.Error("Не удалось загрузить обои. Проверьте подключение"))
+    }
+    
+    private suspend fun kotlinx.coroutines.flow.FlowCollector<UiState<List<Wallpaper>>>.emitLocalWallpapers() {
+        val synced = syncedWallpaperDao.getAllSyncedWallpapersList()
+        val wallpapers = synced.map { it.toWallpaper() }
+        if (wallpapers.isNotEmpty()) {
+            emit(UiState.Success(wallpapers))
         } else {
-            // Fallback - filter from all wallpapers
-            syncedWallpaperDao
-                    .getAllSyncedWallpapers()
-                    .map { all ->
-                        val wallpapers =
-                                all
-                                        .filter {
-                                            it.category.name.equals(categoryId, ignoreCase = true)
-                                        }
-                                        .map { it.toWallpaper() }
-                        android.util.Log.d(
-                                "WallpaperRepo",
-                                "Category $categoryId (fallback): ${wallpapers.size} wallpapers"
-                        )
-                        if (wallpapers.isNotEmpty()) {
-                            UiState.Success(wallpapers)
-                        } else {
-                            UiState.Empty
-                        }
-                    }
-                    .catch { e ->
-                        android.util.Log.e("WallpaperRepo", "getWallpapersByCategory error", e)
-                        emit(UiState.Error("Не удалось загрузить обои"))
-                    }
+            emit(UiState.Empty)
+        }
+    }
+
+    /** Get wallpapers by category from VIREX Backend */
+    fun getWallpapersByCategory(categoryId: String): Flow<UiState<List<Wallpaper>>> = flow {
+        emit(UiState.Loading)
+        android.util.Log.d(TAG, "getWallpapersByCategory($categoryId)")
+
+        try {
+            // PRIMARY: Load from VIREX Backend
+            val response = virexBackendApi.getByCategory(categoryId, page = 1, perPage = 50)
+            
+            if (response.wallpapers.isNotEmpty()) {
+                val wallpapers = response.wallpapers.map { it.toWallpaper() }
+                android.util.Log.d(TAG, "Backend category $categoryId: ${wallpapers.size} wallpapers")
+                emit(UiState.Success(wallpapers))
+            } else {
+                // Fallback to local
+                emitLocalCategoryWallpapers(categoryId)
+            }
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "Backend category error: ${e.message}", e)
+            emitLocalCategoryWallpapers(categoryId)
+        }
+    }.catch { e ->
+        android.util.Log.e(TAG, "getWallpapersByCategory error", e)
+        emit(UiState.Error("Не удалось загрузить обои"))
+    }
+    
+    private suspend fun kotlinx.coroutines.flow.FlowCollector<UiState<List<Wallpaper>>>.emitLocalCategoryWallpapers(categoryId: String) {
+        val syncCategory = try {
+            SyncCategory.valueOf(categoryId.uppercase())
+        } catch (_: Exception) {
+            SyncCategory.values().find {
+                it.name.equals(categoryId, ignoreCase = true) ||
+                        it.displayName.equals(categoryId, ignoreCase = true)
+            }
+        }
+
+        if (syncCategory != null) {
+            val synced = syncedWallpaperDao.getWallpapersByCategoryList(syncCategory)
+            val wallpapers = synced.map { it.toWallpaper() }
+            if (wallpapers.isNotEmpty()) {
+                emit(UiState.Success(wallpapers))
+            } else {
+                emit(UiState.Empty)
+            }
+        } else {
+            emit(UiState.Empty)
         }
     }
 
     /**
-     * Get featured wallpapers (random selection). Reactive - updates when wallpapers change in
-     * database.
+     * Get featured wallpapers from VIREX Backend
      */
-    fun getFeaturedWallpapers(): Flow<UiState<List<Wallpaper>>> =
-            syncedWallpaperDao
-                    .getAllSyncedWallpapers()
-                    .map { synced ->
-                        val wallpapers = synced.shuffled().take(30).map { it.toWallpaper() }
-                        if (wallpapers.isNotEmpty()) {
-                            UiState.Success(wallpapers)
-                        } else {
-                            UiState.Empty
-                        }
-                    }
-                    .catch { e ->
-                        android.util.Log.e("WallpaperRepo", "getFeaturedWallpapers error", e)
-                        emit(UiState.Error("Не удалось загрузить обои"))
-                    }
+    fun getFeaturedWallpapers(): Flow<UiState<List<Wallpaper>>> = flow {
+        emit(UiState.Loading)
+        
+        try {
+            // Use search for featured/popular
+            val response = virexBackendApi.searchWallpapers(query = "featured", page = 1, perPage = 30)
+            
+            if (response.wallpapers.isNotEmpty()) {
+                val wallpapers = response.wallpapers.map { it.toWallpaper() }
+                emit(UiState.Success(wallpapers))
+            } else {
+                // Fallback: get trending and shuffle
+                val trending = virexBackendApi.getTrending(page = 1, perPage = 50)
+                if (trending.wallpapers.isNotEmpty()) {
+                    val wallpapers = trending.wallpapers.shuffled().take(30).map { it.toWallpaper() }
+                    emit(UiState.Success(wallpapers))
+                } else {
+                    emitLocalFeatured()
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "getFeaturedWallpapers error: ${e.message}", e)
+            emitLocalFeatured()
+        }
+    }.catch { e ->
+        android.util.Log.e(TAG, "getFeaturedWallpapers error", e)
+        emit(UiState.Error("Не удалось загрузить обои"))
+    }
+    
+    private suspend fun kotlinx.coroutines.flow.FlowCollector<UiState<List<Wallpaper>>>.emitLocalFeatured() {
+        val synced = syncedWallpaperDao.getAllSyncedWallpapersList()
+        val wallpapers = synced.shuffled().take(30).map { it.toWallpaper() }
+        if (wallpapers.isNotEmpty()) {
+            emit(UiState.Success(wallpapers))
+        } else {
+            emit(UiState.Empty)
+        }
+    }
 
     /**
-     * Get trending wallpapers (sorted by likes). Reactive - updates when wallpapers change in
-     * database.
+     * Get trending wallpapers from VIREX Backend
      */
-    fun getTrendingWallpapers(): Flow<UiState<List<Wallpaper>>> =
-            syncedWallpaperDao
-                    .getAllSyncedWallpapers()
-                    .map { synced ->
-                        val wallpapers =
-                                synced.sortedByDescending { it.likes }.take(30).map {
-                                    it.toWallpaper()
-                                }
-                        if (wallpapers.isNotEmpty()) {
-                            UiState.Success(wallpapers)
-                        } else {
-                            UiState.Empty
-                        }
-                    }
-                    .catch { e ->
-                        android.util.Log.e("WallpaperRepo", "getTrendingWallpapers error", e)
-                        emit(UiState.Error("Не удалось загрузить обои"))
-                    }
+    fun getTrendingWallpapers(): Flow<UiState<List<Wallpaper>>> = flow {
+        emit(UiState.Loading)
+        
+        try {
+            val response = virexBackendApi.getTrending(page = 1, perPage = 30)
+            
+            if (response.wallpapers.isNotEmpty()) {
+                val wallpapers = response.wallpapers.map { it.toWallpaper() }
+                android.util.Log.d(TAG, "Trending: ${wallpapers.size} wallpapers from backend")
+                emit(UiState.Success(wallpapers))
+            } else {
+                emitLocalTrending()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "getTrendingWallpapers error: ${e.message}", e)
+            emitLocalTrending()
+        }
+    }.catch { e ->
+        android.util.Log.e(TAG, "getTrendingWallpapers error", e)
+        emit(UiState.Error("Не удалось загрузить обои"))
+    }
+    
+    private suspend fun kotlinx.coroutines.flow.FlowCollector<UiState<List<Wallpaper>>>.emitLocalTrending() {
+        val synced = syncedWallpaperDao.getAllSyncedWallpapersList()
+        val wallpapers = synced.sortedByDescending { it.likes }.take(30).map { it.toWallpaper() }
+        if (wallpapers.isNotEmpty()) {
+            emit(UiState.Success(wallpapers))
+        } else {
+            emit(UiState.Empty)
+        }
+    }
 
     /**
-     * Get new wallpapers (sorted by date). Reactive - updates when wallpapers change in database.
+     * Get new wallpapers from VIREX Backend
      */
-    fun getNewWallpapers(): Flow<UiState<List<Wallpaper>>> =
-            syncedWallpaperDao
-                    .getAllSyncedWallpapers()
-                    .map { synced ->
-                        val wallpapers =
-                                synced.sortedByDescending { it.syncedAt }.take(30).map {
-                                    it.toWallpaper()
-                                }
-                        if (wallpapers.isNotEmpty()) {
-                            UiState.Success(wallpapers)
-                        } else {
-                            UiState.Empty
-                        }
-                    }
-                    .catch { e ->
-                        android.util.Log.e("WallpaperRepo", "getNewWallpapers error", e)
-                        emit(UiState.Error("Не удалось загрузить обои"))
-                    }
+    fun getNewWallpapers(): Flow<UiState<List<Wallpaper>>> = flow {
+        emit(UiState.Loading)
+        
+        try {
+            // Use search for latest/new wallpapers
+            val response = virexBackendApi.searchWallpapers(query = "latest", page = 1, perPage = 30)
+            
+            if (response.wallpapers.isNotEmpty()) {
+                val wallpapers = response.wallpapers.map { it.toWallpaper() }
+                android.util.Log.d(TAG, "New: ${wallpapers.size} wallpapers from backend")
+                emit(UiState.Success(wallpapers))
+            } else {
+                // Fallback to trending (newest)
+                val trending = virexBackendApi.getTrending(page = 1, perPage = 50)
+                if (trending.wallpapers.isNotEmpty()) {
+                    val wallpapers = trending.wallpapers.take(30).map { it.toWallpaper() }
+                    emit(UiState.Success(wallpapers))
+                } else {
+                    emitLocalNew()
+                }
+            }
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "getNewWallpapers error: ${e.message}", e)
+            emitLocalNew()
+        }
+    }.catch { e ->
+        android.util.Log.e(TAG, "getNewWallpapers error", e)
+        emit(UiState.Error("Не удалось загрузить обои"))
+    }
+    
+    private suspend fun kotlinx.coroutines.flow.FlowCollector<UiState<List<Wallpaper>>>.emitLocalNew() {
+        val synced = syncedWallpaperDao.getAllSyncedWallpapersList()
+        val wallpapers = synced.sortedByDescending { it.syncedAt }.take(30).map { it.toWallpaper() }
+        if (wallpapers.isNotEmpty()) {
+            emit(UiState.Success(wallpapers))
+        } else {
+            emit(UiState.Empty)
+        }
+    }
 
     /** Get wallpaper by ID */
     suspend fun getWallpaperById(id: String): Wallpaper? {
@@ -217,72 +304,74 @@ constructor(
     // ==================== CATEGORIES ====================
 
     /**
-     * Get all categories from synced wallpapers. Reactive - updates when wallpapers change in
-     * database.
+     * Get all categories from VIREX Backend
      */
-    fun getAllCategories(): Flow<UiState<List<Category>>> =
-            syncedWallpaperDao
-                    .getAllSyncedWallpapers()
-                    .map { synced ->
-                        android.util.Log.d(
-                                "WallpaperRepo",
-                                "getAllCategories: ${synced.size} wallpapers"
-                        )
+    fun getAllCategories(): Flow<UiState<List<Category>>> = flow {
+        emit(UiState.Loading)
+        
+        try {
+            val response = virexBackendApi.getCategories()
+            
+            if (response.categories.isNotEmpty()) {
+                val categories = response.categories.mapIndexed { index, catItem ->
+                    Category(
+                        id = catItem.id,
+                        name = catItem.name,
+                        coverUrl = catItem.coverUrl ?: "",
+                        wallpaperCount = catItem.count ?: 0,
+                        sortOrder = index,
+                        isVisible = true
+                    )
+                }
+                android.util.Log.d(TAG, "Categories: ${categories.size} from backend")
+                emit(UiState.Success(categories))
+            } else {
+                // Fallback to local categories
+                emitLocalCategories()
+            }
+        } catch (e: Exception) {
+            android.util.Log.e(TAG, "getAllCategories error: ${e.message}", e)
+            emitLocalCategories()
+        }
+    }.catch { e ->
+        android.util.Log.e(TAG, "getAllCategories error", e)
+        emit(UiState.Success(getDefaultCategories()))
+    }
+    
+    private suspend fun kotlinx.coroutines.flow.FlowCollector<UiState<List<Category>>>.emitLocalCategories() {
+        val synced = syncedWallpaperDao.getAllSyncedWallpapersList()
+        
+        val categories = SyncCategory.values().mapIndexed { index, syncCat ->
+            val wallpapersInCategory = synced.filter { it.category == syncCat }
+            Category(
+                id = syncCat.name.lowercase(),
+                name = syncCat.displayName,
+                coverUrl = wallpapersInCategory.firstOrNull()?.thumbnailUrl ?: "",
+                wallpaperCount = wallpapersInCategory.size,
+                sortOrder = index,
+                isVisible = wallpapersInCategory.isNotEmpty()
+            )
+        }.filter { it.isVisible }
 
-                        val categories =
-                                SyncCategory.values()
-                                        .mapIndexed { index, syncCat ->
-                                            val wallpapersInCategory =
-                                                    synced.filter { it.category == syncCat }
-                                            Category(
-                                                    id = syncCat.name.lowercase(),
-                                                    name = syncCat.displayName,
-                                                    coverUrl =
-                                                            wallpapersInCategory.firstOrNull()
-                                                                    ?.thumbnailUrl
-                                                                    ?: "",
-                                                    wallpaperCount = wallpapersInCategory.size,
-                                                    sortOrder = index,
-                                                    isVisible = wallpapersInCategory.isNotEmpty()
-                                            )
-                                        }
-                                        .filter { it.isVisible }
-
-                        if (categories.isNotEmpty()) {
-                            UiState.Success(categories)
-                        } else {
-                            // Return all categories even if empty
-                            UiState.Success(
-                                    SyncCategory.values().mapIndexed { index, syncCat ->
-                                        Category(
-                                                id = syncCat.name.lowercase(),
-                                                name = syncCat.displayName,
-                                                coverUrl = "",
-                                                wallpaperCount = 0,
-                                                sortOrder = index,
-                                                isVisible = true
-                                        )
-                                    }
-                            )
-                        }
-                    }
-                    .catch { e ->
-                        android.util.Log.e("WallpaperRepo", "getAllCategories error", e)
-                        emit(
-                                UiState.Success(
-                                        SyncCategory.values().mapIndexed { index, syncCat ->
-                                            Category(
-                                                    id = syncCat.name.lowercase(),
-                                                    name = syncCat.displayName,
-                                                    coverUrl = "",
-                                                    wallpaperCount = 0,
-                                                    sortOrder = index,
-                                                    isVisible = true
-                                            )
-                                        }
-                                )
-                        )
-                    }
+        if (categories.isNotEmpty()) {
+            emit(UiState.Success(categories))
+        } else {
+            emit(UiState.Success(getDefaultCategories()))
+        }
+    }
+    
+    private fun getDefaultCategories(): List<Category> {
+        return SyncCategory.values().mapIndexed { index, syncCat ->
+            Category(
+                id = syncCat.name.lowercase(),
+                name = syncCat.displayName,
+                coverUrl = "",
+                wallpaperCount = 0,
+                sortOrder = index,
+                isVisible = true
+            )
+        }
+    }
 
     // ==================== FAVORITES ====================
 

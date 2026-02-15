@@ -8,6 +8,7 @@ import com.virex.wallpapers.data.remote.api.GitHubCdnApi
 import com.virex.wallpapers.data.remote.api.PexelsApi
 import com.virex.wallpapers.data.remote.api.PicsumApi
 import com.virex.wallpapers.data.remote.api.UnsplashApi
+import com.virex.wallpapers.data.remote.api.VirexBackendApi
 import com.virex.wallpapers.data.remote.api.WallhavenApi
 import dagger.Module
 import dagger.Provides
@@ -176,4 +177,22 @@ object NetworkModule {
     @Singleton
     fun provideBingApi(@Named("bing") retrofit: Retrofit): BingApi =
             retrofit.create(BingApi::class.java)
+
+    // ==================== VIREX Backend API (Primary for RU) ====================
+
+    @Provides
+    @Singleton
+    @Named("virex_backend_retrofit")
+    fun provideVirexBackendRetrofit(@Named("cdn") okHttpClient: OkHttpClient, gson: Gson): Retrofit =
+            Retrofit.Builder()
+                    .baseUrl(VirexBackendApi.BASE_URL)
+                    .client(okHttpClient)
+                    .addConverterFactory(GsonConverterFactory.create(gson))
+                    .build()
+
+    @Provides
+    @Singleton
+    @Named("virex_backend")
+    fun provideVirexBackendApi(@Named("virex_backend_retrofit") retrofit: Retrofit): VirexBackendApi =
+            retrofit.create(VirexBackendApi::class.java)
 }

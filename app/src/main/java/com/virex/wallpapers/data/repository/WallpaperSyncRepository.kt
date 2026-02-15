@@ -10,10 +10,12 @@ import com.virex.wallpapers.data.model.WallpaperSource
 import com.virex.wallpapers.data.remote.api.PexelsApi
 import com.virex.wallpapers.data.remote.api.PicsumApi
 import com.virex.wallpapers.data.remote.api.UnsplashApi
+import com.virex.wallpapers.data.remote.api.VirexBackendApi
 import com.virex.wallpapers.data.remote.api.WallhavenApi
 import com.virex.wallpapers.data.remote.model.PexelsPhoto
 import com.virex.wallpapers.data.remote.model.PicsumPhoto
 import com.virex.wallpapers.data.remote.model.UnsplashPhoto
+import com.virex.wallpapers.data.remote.model.VirexWallpaper
 import com.virex.wallpapers.data.remote.model.WallhavenWallpaper
 import java.io.IOException
 import javax.inject.Inject
@@ -30,15 +32,17 @@ import retrofit2.HttpException
  * Repository for syncing wallpapers from external APIs
  *
  * FALLBACK CHAIN (works in Russia):
- * 1. Wallhaven - PRIMARY (no API key needed, works globally)
- * 2. Picsum - FALLBACK (no API key needed, works globally)
- * 3. Unsplash - OPTIONAL (needs API key, may be blocked)
- * 4. Pexels - OPTIONAL (needs API key, may be blocked)
+ * 1. VIREX Backend - PRIMARY (proxy through Koyeb, works globally!)
+ * 2. Wallhaven - FALLBACK (no API key needed, works globally)
+ * 3. Picsum - FALLBACK (no API key needed, works globally)
+ * 4. Unsplash - OPTIONAL (needs API key, may be blocked)
+ * 5. Pexels - OPTIONAL (needs API key, may be blocked)
  */
 @Singleton
 class WallpaperSyncRepository
 @Inject
 constructor(
+        private val virexBackendApi: VirexBackendApi,
         private val unsplashApi: UnsplashApi,
         private val pexelsApi: PexelsApi,
         private val wallhavenApi: WallhavenApi,
@@ -90,7 +94,7 @@ constructor(
                 }
 
                 try {
-                    Log.d(TAG, "Starting wallpaper sync with fallback chain")
+                    Log.d(TAG, "Starting wallpaper sync with VIREX Backend as primary")
 
                     ensureSyncStatusExists()
                     syncedWallpaperDao.setSyncing(true)
@@ -103,6 +107,21 @@ constructor(
                     val existingIds = syncedWallpaperDao.getAllWallpaperIds().toSet()
                     Log.d(TAG, "Existing wallpapers: ${existingIds.size}")
 
+                    // PRIMARY: VIREX Backend (proxies through Koyeb - works in Russia!)
+                    val backendResult = syncFromVirexBackend(existingIds)
+                    if (backendResult.isSuccess) {
+                        hadSuccessfulSource = true
+                        totalNew += backendResult.count
+                        successfulSources.add("virex_backend")
+                        Log.d(TAG, "VIREX Backend: ${backendResult.count} inserted")
+                    } else {
+                        errors.add("VIREX Backend: ${backendResult.error ?: "unknown"}")
+                        Log.w(TAG, "VIREX Backend failed, trying fallback sources")
+                    }
+
+                    delay(300)
+
+                    // FALLBACK 1: Wallhaven (works globally)
                     val wallhavenResult = syncFromWallhaven(existingIds)
                     if (wallhavenResult.isSuccess) {
                         hadSuccessfulSource = true
@@ -115,6 +134,7 @@ constructor(
 
                     delay(300)
 
+                    // FALLBACK 2: Picsum (works globally)
                     val picsumResult = syncFromPicsum(existingIds)
                     if (picsumResult.isSuccess) {
                         hadSuccessfulSource = true
@@ -192,11 +212,136 @@ constructor(
                 }
             }
 
+    // ==================== VIREX BACKEND (PRIMARY - works in Russia!) ====================
+
+    private suspend fun syncFromVirexBackend(existingIds: Set<String>): SourceSyncResult {
+        val allWallpapers = mutableListOf<Pair<VirexWallpaper, SyncCategory>>()
+        var successfulRequests = 0
+
+        try {
+            // Get trending wallpapers (mix from all sources via backend)
+            val trendingResponse = retryWithBackoff {
+                virexBackendApi.getTrending(page = 1, perPage = 60)
+            }
+            
+            successfulRequests++
+            trendingResponse.wallpapers.forEach { wallpaper ->
+                // Assign category based on tags or use NEW as default
+                val category = determineCategoryFromTags(wallpaper.tags)
+                allWallpapers.add(wallpaper to category)
+            }
+            Log.d(TAG, "VIREX Backend trending: ${trendingResponse.wallpapers.size} wallpapers")
+
+            delay(200)
+
+            // Get wallpapers for each category
+            for (category in SyncCategory.values()) {
+                if (category == SyncCategory.NEW) continue
+                
+                val query = category.searchTerms.random()
+                try {
+                    val response = retryWithBackoff {
+                        virexBackendApi.searchWallpapers(query = query, page = 1, perPage = 20)
+                    }
+                    
+                    successfulRequests++
+                    response.wallpapers.forEach { wallpaper ->
+                        allWallpapers.add(wallpaper to category)
+                    }
+                    Log.d(TAG, "VIREX Backend ${category.name}: ${response.wallpapers.size} wallpapers")
+                } catch (e: Exception) {
+                    if (e is CancellationException) throw e
+                    Log.w(TAG, "VIREX Backend ${category.name} query failed: ${e.message}")
+                }
+                delay(100)
+            }
+
+            if (successfulRequests == 0) {
+                return SourceSyncResult(false, 0, "No successful responses from backend")
+            }
+
+            val newWallpapers = allWallpapers
+                .filter { (wallpaper, _) -> "virex_${wallpaper.id}" !in existingIds }
+                .map { (wallpaper, category) -> wallpaper.toSyncedWallpaper(category) }
+                .distinctBy { it.sourceId }
+                .take(MAX_WALLPAPERS_PER_SYNC)
+
+            val insertedCount = insertNewWallpapers(newWallpapers)
+            return SourceSyncResult(true, insertedCount)
+
+        } catch (e: Exception) {
+            if (e is CancellationException) throw e
+            Log.e(TAG, "VIREX Backend sync error", e)
+            return SourceSyncResult(false, 0, e.message)
+        }
+    }
+
+    private fun determineCategoryFromTags(tags: List<String>?): SyncCategory {
+        if (tags.isNullOrEmpty()) return SyncCategory.NEW
+        
+        val tagsLower = tags.map { it.lowercase() }
+        
+        return when {
+            tagsLower.any { it.contains("nature") || it.contains("landscape") || it.contains("forest") } -> SyncCategory.NATURE
+            tagsLower.any { it.contains("abstract") || it.contains("pattern") || it.contains("geometric") } -> SyncCategory.ABSTRACT
+            tagsLower.any { it.contains("minimal") || it.contains("simple") || it.contains("clean") } -> SyncCategory.MINIMAL
+            tagsLower.any { it.contains("dark") || it.contains("black") || it.contains("amoled") } -> SyncCategory.AMOLED
+            tagsLower.any { it.contains("space") || it.contains("galaxy") || it.contains("stars") || it.contains("cosmos") } -> SyncCategory.SPACE
+            tagsLower.any { it.contains("city") || it.contains("urban") || it.contains("architecture") } -> SyncCategory.CITY
+            tagsLower.any { it.contains("anime") || it.contains("manga") || it.contains("illustration") } -> SyncCategory.ANIME
+            tagsLower.any { it.contains("cyberpunk") || it.contains("neon") || it.contains("futuristic") } -> SyncCategory.CYBERPUNK
+            tagsLower.any { it.contains("car") || it.contains("vehicle") || it.contains("automotive") } -> SyncCategory.CARS
+            tagsLower.any { it.contains("ocean") || it.contains("sea") || it.contains("water") } -> SyncCategory.OCEAN
+            tagsLower.any { it.contains("mountain") || it.contains("peak") || it.contains("alps") } -> SyncCategory.MOUNTAIN
+            tagsLower.any { it.contains("flower") || it.contains("floral") || it.contains("rose") } -> SyncCategory.FLOWERS
+            tagsLower.any { it.contains("game") || it.contains("gaming") || it.contains("esports") } -> SyncCategory.GAMING
+            tagsLower.any { it.contains("fantasy") || it.contains("dragon") || it.contains("magical") } -> SyncCategory.FANTASY
+            tagsLower.any { it.contains("gradient") || it.contains("color") } -> SyncCategory.GRADIENT
+            else -> SyncCategory.NEW
+        }
+    }
+
+    private fun VirexWallpaper.toSyncedWallpaper(category: SyncCategory): SyncedWallpaper {
+        val wallpaperSource = when (source.lowercase()) {
+            "pexels" -> WallpaperSource.PEXELS
+            "unsplash" -> WallpaperSource.UNSPLASH
+            "wallhaven" -> WallpaperSource.WALLHAVEN
+            else -> WallpaperSource.PICSUM
+        }
+        
+        return SyncedWallpaper(
+            id = "virex_$id",
+            sourceId = id,
+            source = wallpaperSource,
+            category = category,
+            thumbnailUrl = thumbnailUrl,
+            fullUrl = url,
+            previewUrl = thumbnailUrl,
+            originalUrl = url,
+            width = width,
+            height = height,
+            color = color,
+            blurHash = null,
+            description = title,
+            photographerName = photographer ?: "Unknown",
+            photographerUrl = photographerUrl,
+            sourceUrl = url,
+            searchQuery = null,
+            tags = tags ?: emptyList(),
+            likes = 0,
+            syncedAt = System.currentTimeMillis(),
+            viewed = false
+        )
+    }
+
+    // ==================== LEGACY SOURCES (fallback) ====================
+
     private suspend fun syncFromUnsplash(existingIds: Set<String>): SourceSyncResult {
         val apiKey = getUnsplashApiKey()
         if (apiKey.isBlank()) {
             return SourceSyncResult(false, 0, "API key not configured")
         }
+
 
         val allPhotos = mutableListOf<Pair<UnsplashPhoto, SyncCategory>>()
         var hasSuccessfulResponse = false

@@ -20,10 +20,18 @@ interface SyncedWallpaperDao {
     /** Get all synced wallpapers, newest first */
     @Query("SELECT * FROM synced_wallpapers ORDER BY syncedAt DESC")
     fun getAllSyncedWallpapers(): Flow<List<SyncedWallpaper>>
+    
+    /** Get all synced wallpapers as list (suspend) */
+    @Query("SELECT * FROM synced_wallpapers ORDER BY syncedAt DESC")
+    suspend fun getAllSyncedWallpapersList(): List<SyncedWallpaper>
 
     /** Get synced wallpapers by category */
     @Query("SELECT * FROM synced_wallpapers WHERE category = :category ORDER BY syncedAt DESC")
     fun getWallpapersByCategory(category: SyncCategory): Flow<List<SyncedWallpaper>>
+    
+    /** Get synced wallpapers by category as list (suspend) */
+    @Query("SELECT * FROM synced_wallpapers WHERE category = :category ORDER BY syncedAt DESC")
+    suspend fun getWallpapersByCategoryList(category: SyncCategory): List<SyncedWallpaper>
 
     /** Get new wallpapers (synced within last 7 days) */
     @Query(
